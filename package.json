@@ -1,11 +1,10 @@
 {
 	"name": "@discordjs/opus",
 	"version": "0.1.0",
-	"description": "",
+	"description": "Opus bindings for Node",
 	"main": "lib/index.js",
 	"author": "iCrawl <icrawltogo@gmail.com>",
 	"license": "MIT",
-	"private": true,
 	"scripts": {
 		"install": "node-pre-gyp install --fallback-to-build",
 		"build": "node-pre-gyp build package",
