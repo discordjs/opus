@@ -28,7 +28,7 @@
 	"binary": {
 		"module_name": "opus",
 		"module_path": "./prebuild/{node_abi}-{platform}-{arch}/",
-		"remote_path": "{version}",
+		"remote_path": "v{version}",
 		"host": "https://github.com/discordjs/opus/releases/download/"
 	}
 }
