@@ -1,0 +1,34 @@
+{
+	"name": "@discordjs/opus",
+	"version": "0.1.0",
+	"description": "",
+	"main": "lib/index.js",
+	"author": "iCrawl <icrawltogo@gmail.com>",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"install": "node-pre-gyp install --fallback-to-build",
+		"build": "node-pre-gyp build package",
+		"lint": "eslint lib",
+		"lint:fix": "eslint lib --fix"
+	},
+	"dependencies": {
+		"node-addon-api": "^2.0.0",
+		"node-pre-gyp": "^0.14.0"
+	},
+	"devDependencies": {
+		"eslint": "^6.8.0",
+		"eslint-config-aqua": "^7.1.2",
+		"prism-media": "^1.1.0",
+		"typescript": "^3.7.4"
+	},
+	"eslintConfig": {
+		"extends": "aqua/node"
+	},
+	"binary": {
+		"module_name": "opus",
+		"module_path": "./prebuild/{node_abi}-{platform}-{arch}/",
+		"remote_path": "{version}",
+		"host": "https://github.com/discordjs/opus/releases/download/"
+	}
+}

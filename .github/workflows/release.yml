@@ -1,0 +1,34 @@
+name: Prebuild
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    name: Prebuild
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        node: [12, 13]
+      fail-fast: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Node v${{ matrix.node }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+          
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Package prebuild
+        run: yarn build
+
+      - name: Upload prebuild asset
+        uses: icrawl/action-artifact@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: 'build/stage/**'
