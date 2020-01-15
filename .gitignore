@@ -16,5 +16,6 @@ pids
 .tmp/
 build/
 include/
+!deps/opus/include
 prebuild/
 test/
