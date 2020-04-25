@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"description": "Opus bindings for Node",
 	"main": "lib/index.js",
+	"types": "typings/index.d.ts",
 	"author": "iCrawl <icrawltogo@gmail.com>",
 	"license": "MIT",
 	"scripts": {
