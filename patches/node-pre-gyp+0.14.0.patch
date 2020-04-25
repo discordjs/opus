@@ -1,0 +1,157 @@
+diff --git a/node_modules/node-pre-gyp/lib/util/abi_crosswalk.json b/node_modules/node-pre-gyp/lib/util/abi_crosswalk.json
+index 8e559d3..641f86d 100644
+--- a/node_modules/node-pre-gyp/lib/util/abi_crosswalk.json
++++ b/node_modules/node-pre-gyp/lib/util/abi_crosswalk.json
+@@ -1735,6 +1735,10 @@
+     "node_abi": 57,
+     "v8": "6.2"
+   },
++  "8.17.0": {
++    "node_abi": 57,
++    "v8": "6.2"
++  },
+   "9.0.0": {
+     "node_abi": 59,
+     "v8": "6.2"
+@@ -1919,6 +1923,26 @@
+     "node_abi": 64,
+     "v8": "6.8"
+   },
++  "10.18.0": {
++    "node_abi": 64,
++    "v8": "6.8"
++  },
++  "10.18.1": {
++    "node_abi": 64,
++    "v8": "6.8"
++  },
++  "10.19.0": {
++    "node_abi": 64,
++    "v8": "6.8"
++  },
++  "10.20.0": {
++    "node_abi": 64,
++    "v8": "6.8"
++  },
++  "10.20.1": {
++    "node_abi": 64,
++    "v8": "6.8"
++  },
+   "11.0.0": {
+     "node_abi": 67,
+     "v8": "7.0"
+@@ -2059,6 +2083,34 @@
+     "node_abi": 72,
+     "v8": "7.7"
+   },
++  "12.13.1": {
++    "node_abi": 72,
++    "v8": "7.7"
++  },
++  "12.14.0": {
++    "node_abi": 72,
++    "v8": "7.7"
++  },
++  "12.14.1": {
++    "node_abi": 72,
++    "v8": "7.7"
++  },
++  "12.15.0": {
++    "node_abi": 72,
++    "v8": "7.7"
++  },
++  "12.16.0": {
++    "node_abi": 72,
++    "v8": "7.8"
++  },
++  "12.16.1": {
++    "node_abi": 72,
++    "v8": "7.8"
++  },
++  "12.16.2": {
++    "node_abi": 72,
++    "v8": "7.8"
++  },
+   "13.0.0": {
+     "node_abi": 79,
+     "v8": "7.8"
+@@ -2066,5 +2118,65 @@
+   "13.0.1": {
+     "node_abi": 79,
+     "v8": "7.8"
++  },
++  "13.1.0": {
++    "node_abi": 79,
++    "v8": "7.8"
++  },
++  "13.2.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.3.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.4.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.5.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.6.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.7.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.8.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.9.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.10.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.10.1": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.11.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.12.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "13.13.0": {
++    "node_abi": 79,
++    "v8": "7.9"
++  },
++  "14.0.0": {
++    "node_abi": 83,
++    "v8": "8.1"
+   }
+ }
+diff --git a/node_modules/node-pre-gyp/lib/util/versioning.js b/node_modules/node-pre-gyp/lib/util/versioning.js
+index fafb0da..6daeab8 100644
+--- a/node_modules/node-pre-gyp/lib/util/versioning.js
++++ b/node_modules/node-pre-gyp/lib/util/versioning.js
+@@ -309,7 +309,8 @@ module.exports.evaluate = function(package_json,options,napi_build_version) {
+     // support host mirror with npm config `--{module_name}_binary_host_mirror`
+     // e.g.: https://github.com/node-inspector/v8-profiler/blob/master/package.json#L25
+     // > npm install v8-profiler --profiler_binary_host_mirror=https://npm.taobao.org/mirrors/node-inspector/
+-    var host = process.env['npm_config_' + opts.module_name + '_binary_host_mirror'] || package_json.binary.host;
++    var validModuleName = opts.module_name.replace('-','_')
++    var host = process.env['npm_config_' + validModuleName + '_binary_host_mirror'] || package_json.binary.host;
+     opts.host = fix_slashes(eval_template(host,opts));
+     opts.module_path = eval_template(package_json.binary.module_path,opts);
+     // now we resolve the module_path to ensure it is absolute so that binding.gyp variables work predictably
