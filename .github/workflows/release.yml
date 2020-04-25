@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-          
+
       - name: Install dependencies
         run: npm install
 
@@ -31,4 +31,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: 'build/stage/**/*.tar.gz'
+          path: "build/stage/**/*.tar.gz"
+
+  build_musl:
+    name: Prebuild (musl)
+    runs-on: ubuntu-latest
+    container:
+      image: node:${{ matrix.node }}-alpine
+    strategy:
+      matrix:
+        node: [12, 13, 14]
+      fail-fast: true
+    steps:
+      - name: Setup env with Node v${{ matrix.node }}
+        run: |
+          apk add --update
+          apk add --no-cache ca-certificates git curl build-base python g++ make
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install --unsafe-perm
+
+      - name: Package prebuild
+        run: npm run build
+
+      - name: Upload prebuild asset
+        uses: icrawl/action-artifact@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: "build/stage/**/*.tar.gz"
