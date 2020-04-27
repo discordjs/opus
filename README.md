@@ -1,10 +1,10 @@
-# @discordjs/opus 
+# @discordjs/opus [![Build](https://github.com/discordjs/opus/workflows/Build/badge.svg)](https://github.com/discordjs/opus/actions?query=workflow%3ABuild) [![Prebuild](https://github.com/discordjs/opus/workflows/Prebuild/badge.svg)](https://github.com/discordjs/opus/actions?query=workflow%3APrebuild)
 > Native bindings to libopus v1.3
 
 ## Usage
 
 ```js
-const { OpusEncoder } = require('@discodjs/opus');
+const { OpusEncoder } = require('@discordjs/opus');
 
 // Create the encoder.
 // Specify 48kHz sampling rate and 2 channel size.
