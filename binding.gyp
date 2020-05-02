@@ -32,7 +32,7 @@
                 "POSIX," "__STDC_FORMAT_MACROS",
                 "DYNAMIC_ANNOTATIONS_ENABLED=0",
                 "NAPI_DISABLE_CPP_EXCEPTIONS",
-                "NAPI_VERSION=3",
+                "NAPI_VERSION=<(napi_build_version)",
             ],
             "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
             "sources": ["src/node-opus.cc"],

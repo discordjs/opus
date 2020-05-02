@@ -15,6 +15,7 @@ pids
 .vscode/
 .tmp/
 build/
+build-tmp*/
 include/
 !deps/opus/include
 prebuild/
