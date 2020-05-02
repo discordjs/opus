@@ -7,7 +7,7 @@
 	"author": "iCrawl <icrawltogo@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"install": "patch-package && node-pre-gyp install --fallback-to-build",
+		"install": "node-pre-gyp install --fallback-to-build",
 		"build": "node-pre-gyp install build package",
 		"lint": "eslint lib",
 		"lint:fix": "eslint lib --fix"
@@ -27,15 +27,13 @@
 	},
 	"dependencies": {
 		"@discordjs/node-pre-gyp": "^0.1.0",
-		"node-addon-api": "^2.0.0",
-		"patch-package": "^6.2.2",
-		"postinstall-postinstall": "^2.1.0"
+		"node-addon-api": "^2.0.0"
 	},
 	"devDependencies": {
 		"eslint": "^6.8.0",
 		"eslint-config-aqua": "^7.2.3",
 		"node-gyp": "^6.1.0",
-		"prism-media": "^1.2.1",
+		"prism-media": "^1.2.2",
 		"typescript": "^3.8.3"
 	},
 	"eslintConfig": {
