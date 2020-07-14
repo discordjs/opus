@@ -11,8 +11,8 @@ const { OpusEncoder } = require('@discordjs/opus');
 const encoder = new OpusEncoder(48000, 2);
 
 // Encode and decode.
-const encoded = encoder.encode(buffer, 48000 / 100);
-const decoded = encoder.decode(encoded, 48000 / 100);
+const encoded = encoder.encode(buffer);
+const decoded = encoder.decode(encoded);
 ```
 
 ## Platform support
