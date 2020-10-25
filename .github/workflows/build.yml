@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        node: [12, 13, 14]
+        os: [macos-latest, ubuntu-latest, ubuntu-16.04, ubuntu-20.04, windows-latest, windows-2016]
+        node: [12, 13, 14, 15]
       fail-fast: true
     steps:
       - name: Checkout repository
@@ -39,7 +39,7 @@ jobs:
       image: node:${{ matrix.node }}-alpine
     strategy:
       matrix:
-        node: [12, 13, 14]
+        node: [12, 13, 14, 15]
       fail-fast: true
     steps:
       - name: Setup env with Node v${{ matrix.node }}
