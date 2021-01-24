@@ -1,6 +1,6 @@
 {
 	"name": "@discordjs/opus",
-	"version": "0.3.3",
+	"version": "0.4.0",
 	"description": "Opus bindings for Node",
 	"main": "lib/index.js",
 	"types": "typings/index.d.ts",
