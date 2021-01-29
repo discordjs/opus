@@ -16,6 +16,7 @@ const decoded = encoder.decode(encoded);
 ```
 
 ## Platform support
+⚠ Node.js 12.0.0 or newer is required.
 
 - Linux x64 & ia32
 - Linux arm (RPi 1 & 2)

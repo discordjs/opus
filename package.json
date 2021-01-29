@@ -39,6 +39,9 @@
 	"eslintConfig": {
 		"extends": "aqua/node"
 	},
+	"engines": {
+		"node": ">=12.0.0"
+	},
 	"binary": {
 		"module_name": "opus",
 		"module_path": "./prebuild/{node_abi}-napi-v{napi_build_version}-{platform}-{arch}-{libc}-{libc_version}/",
