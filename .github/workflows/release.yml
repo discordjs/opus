@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15, ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, windows-2019, windows-2016]
-        node: [12, 13, 14, 15]
+        node: [12, 13, 14, 15, 16]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -39,12 +39,12 @@ jobs:
       image: node:${{ matrix.node }}-alpine
     strategy:
       matrix:
-        node: [12, 13, 14, 15]
+        node: [12, 13, 14, 15, 16]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
           apk add --update
-          apk add --no-cache ca-certificates git curl build-base python g++ make
+          apk add --no-cache ca-certificates git curl build-base python3 g++ make
 
       - name: Checkout repository
         uses: actions/checkout@v2
