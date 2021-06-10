@@ -1,6 +1,6 @@
 {
 	"name": "@discordjs/opus",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"description": "Opus bindings for Node",
 	"main": "lib/index.js",
 	"types": "typings/index.d.ts",
@@ -26,18 +26,16 @@
 		"url": "https://github.com/discordjs/opus.git"
 	},
 	"dependencies": {
-		"@discordjs/node-pre-gyp": "^0.3.2",
-		"node-addon-api": "^3.1.0"
+		"@discordjs/node-pre-gyp": "^0.4.0",
+		"node-addon-api": "^3.2.1"
 	},
 	"devDependencies": {
-		"eslint": "^7.22.0",
-		"eslint-config-aqua": "^8.1.2",
-		"node-gyp": "^7.1.2",
-		"prism-media": "^1.2.8",
-		"typescript": "^4.2.3"
-	},
-	"eslintConfig": {
-		"extends": "aqua/node"
+		"@types/node": "^15.12.2",
+		"eslint": "^7.28.0",
+		"eslint-config-aqua": "^9.0.2",
+		"node-gyp": "^8.1.0",
+		"prism-media": "^1.2.9",
+		"typescript": "^4.3.2"
 	},
 	"engines": {
 		"node": ">=12.0.0"
