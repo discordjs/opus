@@ -200,6 +200,7 @@
                 "opus/celt",
                 "opus/silk",
                 "opus/silk/float",
+		"opus",
             ],
             "defines": ["PIC", "HAVE_CONFIG_H"],
         },
