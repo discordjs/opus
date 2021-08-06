@@ -204,15 +204,15 @@
             "defines": ["PIC", "HAVE_CONFIG_H"],
             "conditions": [
                 [
-                    'target_arch=="arm64"',
+                    "target_arch==\"arm64\"",
                     {
-                        'sources': [
+                        "sources": [
                             "opus/celt/arm/arm_celt_map.c",
                             "opus/celt/arm/armcpu.c",
                             "opus/celt/arm/celt_neon_intr.c",
                             "opus/celt/arm/pitch_neon_intr.c",
                         ],
-                        'include_dirs': [
+                        "include_dirs": [
                             "opus",
                         ],
                     }
