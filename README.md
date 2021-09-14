@@ -22,4 +22,5 @@ const decoded = encoder.decode(encoded);
 - Linux arm (RPi 1 & 2)
 - Linux arm64 (RPi 3)
 - macOS x64
+- macOS arm64
 - Windows x64
