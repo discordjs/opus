@@ -111,7 +111,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup musl cross compoiler
+      - name: Setup musl cross compiler
         run: |
           curl -OL https://musl.cc/aarch64-linux-musl-cross.tgz
           tar -xzvf aarch64-linux-musl-cross.tgz
