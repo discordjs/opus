@@ -84,10 +84,12 @@ Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
 
 	if (this->EnsureEncoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
 	}
-	
+
 	if (!args[0].IsBuffer()) {
-		Napi::TypeError::New(env, "This needs to be a buffer").ThrowAsJavaScriptException();
+		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	Buffer<char> buf = args[0].As<Buffer<char>>();
@@ -105,14 +107,20 @@ Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
 Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
+	if (!args[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
 	Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
 	unsigned char* compressedData = buf.Data();
 	size_t compressedDataLength = buf.Length();
 
 	if (this->EnsureDecoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
 	}
-	
+
 	int decodedSamples = opus_decode(
 		this->decoder,
 		compressedData,
@@ -121,13 +129,14 @@ Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 		MAX_FRAME_SIZE,
 		/* decode_fec */ 0
 	);
-	
+
 	if (decodedSamples < 0) {
 		Napi::TypeError::New(env, getDecodeError(decodedSamples)).ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	int decodedLength = decodedSamples * 2 * this->channels;
-	
+
 	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
 
 	if (!actualBuf.IsEmpty()) return actualBuf;
@@ -135,45 +144,51 @@ Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 
 void OpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
-	
+
 	int ctl = args[0].ToNumber().Int32Value();
 	int value = args[1].ToNumber().Int32Value();
 
 	if (this->EnsureEncoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return;
 	}
 
 	if (opus_encoder_ctl(this->encoder, ctl, value) != OPUS_OK) {
 		Napi::TypeError::New(env, "Invalid ctl / value").ThrowAsJavaScriptException();
+		return;
 	}
 }
 
 void OpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
-	
+
 	int ctl = args[0].ToNumber().Int32Value();
 	int value = args[1].ToNumber().Int32Value();
 
 	if (this->EnsureDecoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
+		return;
 	}
 
 	if (opus_decoder_ctl(this->decoder, ctl, value) != OPUS_OK) {
 		Napi::TypeError::New(env, "Invalid ctl / value").ThrowAsJavaScriptException();
+		return;
 	}
 }
 
 void OpusEncoder::SetBitrate(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
-	
+
 	int bitrate = args[0].ToNumber().Int32Value();
 
 	if (this->EnsureEncoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return;
 	}
 
 	if (opus_encoder_ctl(this->encoder, OPUS_SET_BITRATE(bitrate)) != OPUS_OK) {
 		Napi::TypeError::New(env, "Invalid bitrate").ThrowAsJavaScriptException();
+		return;
 	}
 }
 
@@ -182,6 +197,7 @@ Napi::Value OpusEncoder::GetBitrate(const CallbackInfo& args) {
 
 	if (this->EnsureEncoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	opus_int32 bitrate;
