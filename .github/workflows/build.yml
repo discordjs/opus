@@ -13,6 +13,7 @@ jobs:
     name: Build x86_64
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-10.15, ubuntu-20.04, ubuntu-18.04, windows-2019]
         node: [12, 13, 14, 15, 16, 17, 18]
@@ -37,6 +38,7 @@ jobs:
     container:
       image: node:${{ matrix.node }}-alpine
     strategy:
+      fail-fast: false
       matrix:
         node: [12, 13, 14, 15, 16, 17, 18]
     steps:
@@ -58,6 +60,7 @@ jobs:
     name: Prebuild aarch64
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
         node: [12, 13, 14, 15, 16, 17, 18]
@@ -84,6 +87,7 @@ jobs:
     container:
       image: node:${{ matrix.node }}-alpine
     strategy:
+      fail-fast: false
       matrix:
         node: [12, 13, 14, 15, 16, 17, 18]
     steps:
