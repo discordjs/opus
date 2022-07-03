@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -57,7 +57,7 @@ jobs:
         run: npm run build
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -88,7 +88,7 @@ jobs:
         run: npm run build
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -120,7 +120,7 @@ jobs:
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -152,7 +152,7 @@ jobs:
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -192,7 +192,7 @@ jobs:
           npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v3
+        uses: icrawl/action-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
