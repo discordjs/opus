@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15, ubuntu-20.04, ubuntu-18.04, windows-2019]
-        node: [12, 13, 14, 15, 16]
+        node: [12, 13, 14, 15, 16, 17, 18]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -26,11 +26,11 @@ jobs:
         run: npm run build
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v2
+        uses: icrawl/action-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: "build/stage/**/*.tar.gz"
+          path: 'build/stage/**/*.tar.gz'
 
   build_musl_x86_64:
     name: Prebuild x86_64(musl)
@@ -39,7 +39,7 @@ jobs:
       image: node:${{ matrix.node }}-alpine
     strategy:
       matrix:
-        node: [12, 13, 14, 15, 16]
+        node: [12, 13, 14, 15, 16, 17, 18]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
@@ -47,7 +47,7 @@ jobs:
           apk add --no-cache ca-certificates git curl build-base python3 g++ make
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: npm install --unsafe-perm --build-from-source
@@ -56,26 +56,25 @@ jobs:
         run: npm run build
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v2
+        uses: icrawl/action-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: "build/stage/**/*.tar.gz"
+          path: 'build/stage/**/*.tar.gz'
 
-          
   build_aarch64:
     name: Prebuild aarch64
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
-        node: [12, 13, 14, 15, 16]
+        os: [ubuntu-18.04, ubuntu-20.04]
+        node: [12, 13, 14, 15, 16, 17, 18]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -88,11 +87,11 @@ jobs:
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v2
+        uses: icrawl/action-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: "build/stage/**/*.tar.gz"
+          path: 'build/stage/**/*.tar.gz'
 
   build_musl_aarch64:
     name: Prebuild aarch64(musl)
@@ -101,7 +100,7 @@ jobs:
       image: node:${{ matrix.node }}-alpine
     strategy:
       matrix:
-        node: [12, 13, 14, 15, 16]
+        node: [12, 13, 14, 15, 16, 17, 18]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
@@ -109,7 +108,7 @@ jobs:
           apk add --no-cache ca-certificates git curl build-base python3 g++ make
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup musl cross compiler
         run: |
@@ -127,8 +126,8 @@ jobs:
           npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
-        uses: icrawl/action-artifact@v2
+        uses: icrawl/action-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: "build/stage/**/*.tar.gz"
+          path: 'build/stage/**/*.tar.gz'
