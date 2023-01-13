@@ -35,6 +35,7 @@ Object OpusEncoder::Init(Napi::Env env, Object exports) {
 		InstanceMethod("applyDecoderCTL", &OpusEncoder::ApplyDecoderCTL),
 		InstanceMethod("setBitrate", &OpusEncoder::SetBitrate),
 		InstanceMethod("getBitrate", &OpusEncoder::GetBitrate),
+		InstanceMethod("adjustBitrate", &OpusEncoder::AdjustBitrate),
 	});
 
 	exports.Set("OpusEncoder", func);
@@ -204,6 +205,16 @@ Napi::Value OpusEncoder::GetBitrate(const CallbackInfo& args) {
 	opus_encoder_ctl(this->encoder, OPUS_GET_BITRATE(&bitrate));
 
 	return Napi::Number::New(env, bitrate);
+}
+
+void OpusEncoder::AdjustBitrate(const CallbackInfo& args) {
+    Napi::Env env = args.Env();
+    int targetBitrate = args[0].As<Napi::Number>().Int32Value();
+    int error = opus_encoder_ctl(this->encoder, OPUS_SET_BITRATE(targetBitrate));
+    if (error != OPUS_OK) {
+        Napi::Error::New(env, std::string("Error adjusting bitrate: ") + opus_strerror(error)).ThrowAsJavaScriptException();
+		return;
+    }
 }
 
 Object Init(Napi::Env env, Object exports) {

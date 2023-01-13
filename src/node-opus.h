@@ -38,6 +38,8 @@ class OpusEncoder : public ObjectWrap<OpusEncoder> {
 		void ApplyDecoderCTL(const CallbackInfo& args);
 		
 		void SetBitrate(const CallbackInfo& args);
-		
+
+		void AdjustBitrate(const CallbackInfo& args);
+
 		Napi::Value GetBitrate(const CallbackInfo& args);
 };

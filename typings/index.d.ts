@@ -7,5 +7,6 @@ declare module '@discordjs/opus' {
 		public applyDecoderCTL(ctl: number, value: number): void;
 		public setBitrate(bitrate: number): void;
 		public getBitrate(): number;
+		public adjustBitrate(bitrate: number): void;
 	}
 }
