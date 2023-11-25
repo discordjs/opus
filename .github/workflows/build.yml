@@ -105,11 +105,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
-
       - name: Install dependencies
         run: npm install --build-from-source
 
