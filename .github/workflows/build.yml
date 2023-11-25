@@ -54,6 +54,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install setuptools
+        run: |
+          python3 -m pip install setuptools
+
       - name: Install dependencies
         run: npm install --build-from-source
 
