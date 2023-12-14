@@ -125,7 +125,7 @@ jobs:
 
       - name: Package prebuild
         run: |
-          sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
@@ -157,7 +157,7 @@ jobs:
 
       - name: Package prebuild
         run: |
-          sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
       - name: Upload prebuild asset
