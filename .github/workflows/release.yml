@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-11, macos-12, macos-13, ubuntu-20.04, ubuntu-22.04, windows-2019]
-        node: [12, 13, 14, 15, 16, 17]
+        node: [12, 13, 14, 15, 16, 17, 19]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-11, macos-12, macos-13, ubuntu-20.04, ubuntu-22.04, windows-2019]
-        node: [18, 19, 20, 21]
+        node: [18, 20, 21]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -55,9 +55,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install setuptools
+      - name: Update npm
         run: |
-          python3 -m pip install setuptools
+          npm i -g npm@latest
 
       - name: Install dependencies
         run: npm install --build-from-source
@@ -110,7 +110,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
-        node: [12, 13, 14, 15, 16, 17]
+        node: [12, 13, 14, 15, 16, 17, 19]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -142,7 +142,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
-        node: [18, 19, 20, 21]
+        node: [18, 20, 21]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
