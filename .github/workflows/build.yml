@@ -9,8 +9,8 @@ on:
     branches:
       - '**'
 jobs:
-  build_x86_64:
-    name: Build x86_64
+  build_x86_64_legacy_nodejs:
+    name: Build x86_64 (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -37,8 +37,8 @@ jobs:
       - name: Package prebuild
         run: npm run build
 
-  build_x86_64_node_ge_18:
-    name: Build x86_64 node >= 18
+  build_x86_64:
+    name: Build x86_64
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -65,7 +65,7 @@ jobs:
         run: npm run build
 
   build_musl_x86_64:
-    name: Build x86_64(musl)
+    name: Build x86_64 (musl)
     runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node }}-alpine
@@ -88,8 +88,8 @@ jobs:
       - name: Package prebuild
         run: npm run build
 
-  build_aarch64:
-    name: Prebuild aarch64
+  build_aarch64_legacy_nodejs:
+    name: Prebuild aarch64 (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -113,8 +113,8 @@ jobs:
           sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
-  build_aarch64_node_ge_18:
-    name: Prebuild aarch64 node >= 18
+  build_aarch64:
+    name: Prebuild aarch64
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -139,7 +139,7 @@ jobs:
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
   build_musl_aarch64:
-    name: Prebuild aarch64(musl)
+    name: Prebuild aarch64 (musl)
     runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node }}-alpine

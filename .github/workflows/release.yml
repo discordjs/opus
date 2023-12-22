@@ -3,8 +3,8 @@ on:
   release:
     types: [published]
 jobs:
-  build_x86_64:
-    name: Prebuild x86_64
+  build_x86_64_legacy_nodejs:
+    name: Prebuild x86_64 (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -38,8 +38,8 @@ jobs:
         with:
           path: 'build/stage/**/*.tar.gz'
 
-  build_x86_64_node_ge_18:
-    name: Build x86_64 node >= 18
+  build_x86_64:
+    name: Prebuild x86_64
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -73,7 +73,7 @@ jobs:
           path: 'build/stage/**/*.tar.gz'
 
   build_musl_x86_64:
-    name: Prebuild x86_64(musl)
+    name: Prebuild x86_64 (musl)
     runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node }}-alpine
@@ -103,8 +103,8 @@ jobs:
         with:
           path: 'build/stage/**/*.tar.gz'
 
-  build_aarch64:
-    name: Prebuild aarch64
+  build_aarch64_legacy_nodejs:
+    name: Prebuild aarch64 (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -135,8 +135,8 @@ jobs:
         with:
           path: 'build/stage/**/*.tar.gz'
 
-  build_aarch64_node_ge_18:
-    name: Prebuild aarch64 node >= 18
+  build_aarch64:
+    name: Prebuild aarch64
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -168,7 +168,7 @@ jobs:
           path: 'build/stage/**/*.tar.gz'
 
   build_musl_aarch64:
-    name: Prebuild aarch64(musl)
+    name: Prebuild aarch64 (musl)
     runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node }}-alpine
