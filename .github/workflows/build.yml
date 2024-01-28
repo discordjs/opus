@@ -54,10 +54,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Update npm
-        run: |
-          npm i -g npm@latest
-
       - name: Install dependencies
         run: npm install --build-from-source
 
