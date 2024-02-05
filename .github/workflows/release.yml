@@ -76,7 +76,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 13, 14, 15, 16, 17, 18, 19]
+        node: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
@@ -171,7 +171,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 13, 14, 15, 16, 17, 18, 19]
+        node: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
