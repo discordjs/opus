@@ -1,6 +1,6 @@
 # @discordjs/opus Contributing Guide
 
-- [Code of Conduct](https://github.com/discordjs/discord.js-next/blob/master/.github/CODE_OF_CONDUCT.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Development Setup](#development-setup)
 
