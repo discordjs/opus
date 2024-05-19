@@ -193,6 +193,7 @@
                 "-Wno-unused-parameter",
                 "-Wno-sign-compare",
                 "-Wno-maybe-uninitialized",
+                "-Wno-incompatible-pointer-types",
             ],
             "include_dirs": [
                 "config/opus/<(OS)/<(target_arch)",
