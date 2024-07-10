@@ -44,6 +44,7 @@ Object OpusEncoder::Init(Napi::Env env, Object exports) {
 OpusEncoder::OpusEncoder(const CallbackInfo& args): ObjectWrap<OpusEncoder>(args) {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
+	this->outPcm = nullptr;
 
 	if (args.Length() < 2) {
 		Napi::RangeError::New(args.Env(), "Expected 2 arguments").ThrowAsJavaScriptException();
@@ -68,7 +69,7 @@ OpusEncoder::~OpusEncoder() {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
 
-	delete this->outPcm;
+	if (this->outPcm) delete this->outPcm;
 	this->outPcm = nullptr;
 }
 
