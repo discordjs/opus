@@ -44,6 +44,17 @@ Object OpusEncoder::Init(Napi::Env env, Object exports) {
 OpusEncoder::OpusEncoder(const CallbackInfo& args): ObjectWrap<OpusEncoder>(args) {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
+
+	if (args.Length() < 2) {
+		Napi::RangeError::New(args.Env(), "Expected 2 arguments").ThrowAsJavaScriptException();
+		return;
+	}
+
+	if (!args[0].IsNumber() || !args[1].IsNumber()) {
+		Napi::TypeError::New(args.Env(), "Expected rate and channels to be numbers").ThrowAsJavaScriptException();
+		return;
+	}
+
 	this->rate = args[0].ToNumber().Int32Value();
 	this->channels = args[1].ToNumber().Int32Value();
 	this->application = OPUS_APPLICATION_AUDIO;
@@ -87,6 +98,11 @@ Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
 		return env.Null();
 	}
 
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
 	if (!args[0].IsBuffer()) {
 		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
 		return env.Null();
@@ -102,10 +118,18 @@ Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
 	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
 
 	if (!actualBuf.IsEmpty()) return actualBuf;
+
+	Napi::Error::New(env, "Could not encode the data").ThrowAsJavaScriptException();
+	return env.Null();
 }
 
 Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
 
 	if (!args[0].IsBuffer()) {
 		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
@@ -140,10 +164,23 @@ Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
 
 	if (!actualBuf.IsEmpty()) return actualBuf;
+
+	Napi::Error::New(env, "Could not decode the data").ThrowAsJavaScriptException();
+	return env.Null();
 }
 
 void OpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
+
+	if (args.Length() < 2) {
+		Napi::RangeError::New(env, "Expected 2 arguments").ThrowAsJavaScriptException();
+		return;
+	}
+
+	if (!args[0].IsNumber() || !args[1].IsNumber()) {
+		Napi::TypeError::New(env, "Expected ctl and value to be numbers").ThrowAsJavaScriptException();
+		return;
+	}
 
 	int ctl = args[0].ToNumber().Int32Value();
 	int value = args[1].ToNumber().Int32Value();
@@ -162,6 +199,16 @@ void OpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
 void OpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
+	if (args.Length() < 2) {
+		Napi::RangeError::New(env, "Expected 2 arguments").ThrowAsJavaScriptException();
+		return;
+	}
+
+	if (!args[0].IsNumber() || !args[1].IsNumber()) {
+		Napi::TypeError::New(env, "Expected ctl and value to be numbers").ThrowAsJavaScriptException();
+		return;
+	}
+
 	int ctl = args[0].ToNumber().Int32Value();
 	int value = args[1].ToNumber().Int32Value();
 
@@ -178,6 +225,16 @@ void OpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
 
 void OpusEncoder::SetBitrate(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return;
+	}
+
+	if (!args[0].IsNumber()) {
+		Napi::TypeError::New(env, "Expected bitrate to be a number").ThrowAsJavaScriptException();
+		return;
+	}
 
 	int bitrate = args[0].ToNumber().Int32Value();
 

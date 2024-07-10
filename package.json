@@ -28,7 +28,7 @@
 	},
 	"dependencies": {
 		"@discordjs/node-pre-gyp": "^0.4.5",
-		"node-addon-api": "^5.0.0"
+		"node-addon-api": "^8.1.0"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.2",
