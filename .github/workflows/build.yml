@@ -135,6 +135,7 @@ jobs:
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
 
   build_aarch64_legacy_nodejs_mac:
+    name: Prebuild aarch64 macOS (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

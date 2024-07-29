@@ -164,6 +164,7 @@ jobs:
           path: 'build/stage/**/*.tar.gz'
 
   build_aarch64_legacy_nodejs_mac:
+    name: Prebuild aarch64 macOS (legacy Node.js)
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
