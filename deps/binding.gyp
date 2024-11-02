@@ -22,6 +22,7 @@
                 "opus/src/opus_multistream.c",
                 "opus/src/opus_projection_encoder.c",
                 "opus/src/analysis.c",
+                "opus/src/extensions.c",
                 "opus/src/mlp_data.c",
                 "opus/src/opus_multistream_encoder.c",
                 "opus/src/opus_projection_decoder.c",
