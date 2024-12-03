@@ -9,5 +9,9 @@ const frame = fs.readFileSync(path.join(__dirname, 'frame.opus'));
 
 const decoded = opus.decode(frame);
 
+const reEncoded = opus.encode(decoded);
+
 assert(decoded.length === 640, 'Decoded frame length is not 640');
+assert(reEncoded.length === 45, 're encoded frame length is not 45');
+
 console.log('Passed');
