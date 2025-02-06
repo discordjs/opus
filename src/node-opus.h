@@ -16,6 +16,7 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 
 		unsigned char outOpus[MAX_PACKET_SIZE];
 		opus_int16* outPcm;
+		float* outFloat;
 
 	protected:
 		int EnsureEncoder();
@@ -32,6 +33,8 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		Napi::Value Encode(const CallbackInfo& args);
 		
 		Napi::Value Decode(const CallbackInfo& args);
+
+		Napi::Value DecodeFloat(const CallbackInfo& args);
 		
 		void ApplyEncoderCTL(const CallbackInfo& args);
 		
