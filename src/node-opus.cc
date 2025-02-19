@@ -30,6 +30,7 @@ Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 
 	Function func = DefineClass(env, "OpusEncoder", {
 		InstanceMethod("encode", &NodeOpusEncoder::Encode),
+		InstanceMethod("encodeFloat", &NodeOpusEncoder::EncodeFloat),
 		InstanceMethod("decode", &NodeOpusEncoder::Decode),
 		InstanceMethod("decodeFloat", &NodeOpusEncoder::DecodeFloat),
 		InstanceMethod("applyEncoderCTL", &NodeOpusEncoder::ApplyEncoderCTL),
@@ -127,6 +128,39 @@ Napi::Value NodeOpusEncoder::Encode(const CallbackInfo& args) {
 	int frameSize = buf.Length() / 2 / this->channels;
 
 	int compressedLength = opus_encode(this->encoder, pcm, frameSize, &(this->outOpus[0]), MAX_PACKET_SIZE);
+
+	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
+
+	if (!actualBuf.IsEmpty()) return actualBuf;
+
+	Napi::Error::New(env, "Could not encode the data").ThrowAsJavaScriptException();
+	return env.Null();
+}
+
+Napi::Value NodeOpusEncoder::EncodeFloat(const CallbackInfo& args) {
+	Napi::Env env = args.Env();
+
+	if (this->EnsureEncoder() != OPUS_OK) {
+		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (!args[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	Buffer<char> buf = args[0].As<Buffer<char>>();
+	char* pcmData = buf.Data();
+	float* pcm = reinterpret_cast<float*>(pcmData);
+	int frameSize = buf.Length() / 4 / this->channels;
+
+	int compressedLength = opus_encode_float(this->encoder, pcm, frameSize, &(this->outOpus[0]), MAX_PACKET_SIZE);
 
 	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
 
