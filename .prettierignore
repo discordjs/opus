@@ -3,3 +3,4 @@ build/
 build-tmp-napi-v3/
 deps/
 prebuild/
+.github/workflows/

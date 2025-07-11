@@ -28,17 +28,23 @@
 	},
 	"dependencies": {
 		"@discordjs/node-pre-gyp": "^0.4.5",
-		"node-addon-api": "^8.1.0"
+		"node-addon-api": "^8.4.0"
 	},
 	"devDependencies": {
-		"@types/node": "^18.11.2",
-		"eslint": "^8.25.0",
-		"eslint-config-neon": "^0.1.39",
-		"eslint-formatter-pretty": "^4.1.0",
-		"node-gyp": "^9.3.0",
-		"prettier": "^2.7.1",
-		"prism-media": "^1.3.4",
-		"typescript": "^4.8.4"
+		"@types/node": "^24.0.13",
+		"eslint": "^9.30.1",
+		"eslint-config-neon": "^0.2.7",
+		"eslint-formatter-pretty": "^6.0.1",
+		"node-gyp": "^11.2.0",
+		"prettier": "^3.6.2",
+		"typescript": "^5.8.3"
+	},
+	"overrides": {
+		"eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-typescript-sort-keys": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-sonarjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-vue": "npm:@favware/skip-dependency@latest"
 	},
 	"engines": {
 		"node": ">=18.0.0"
