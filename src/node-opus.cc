@@ -25,23 +25,23 @@ const char* getDecodeError(int decodedSamples) {
 	}
 }
 
-Object OpusEncoder::Init(Napi::Env env, Object exports) {
+Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 	HandleScope scope(env);
 
 	Function func = DefineClass(env, "OpusEncoder", {
-		InstanceMethod("encode", &OpusEncoder::Encode),
-		InstanceMethod("decode", &OpusEncoder::Decode),
-		InstanceMethod("applyEncoderCTL", &OpusEncoder::ApplyEncoderCTL),
-		InstanceMethod("applyDecoderCTL", &OpusEncoder::ApplyDecoderCTL),
-		InstanceMethod("setBitrate", &OpusEncoder::SetBitrate),
-		InstanceMethod("getBitrate", &OpusEncoder::GetBitrate),
+		InstanceMethod("encode", &NodeOpusEncoder::Encode),
+		InstanceMethod("decode", &NodeOpusEncoder::Decode),
+		InstanceMethod("applyEncoderCTL", &NodeOpusEncoder::ApplyEncoderCTL),
+		InstanceMethod("applyDecoderCTL", &NodeOpusEncoder::ApplyDecoderCTL),
+		InstanceMethod("setBitrate", &NodeOpusEncoder::SetBitrate),
+		InstanceMethod("getBitrate", &NodeOpusEncoder::GetBitrate),
 	});
 
 	exports.Set("OpusEncoder", func);
 	return exports;
 }
 
-OpusEncoder::OpusEncoder(const CallbackInfo& args): ObjectWrap<OpusEncoder>(args) {
+NodeOpusEncoder::NodeOpusEncoder(const CallbackInfo& args): ObjectWrap<NodeOpusEncoder>(args) {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
 	this->outPcm = nullptr;
@@ -62,7 +62,7 @@ OpusEncoder::OpusEncoder(const CallbackInfo& args): ObjectWrap<OpusEncoder>(args
 	this->outPcm = new opus_int16[channels * MAX_FRAME_SIZE];
 }
 
-OpusEncoder::~OpusEncoder() {
+NodeOpusEncoder::~NodeOpusEncoder() {
 	if (this->encoder) opus_encoder_destroy(this->encoder);
 	if (this->decoder) opus_decoder_destroy(this->decoder);
 
@@ -73,7 +73,7 @@ OpusEncoder::~OpusEncoder() {
 	this->outPcm = nullptr;
 }
 
-int OpusEncoder::EnsureEncoder() {
+int NodeOpusEncoder::EnsureEncoder() {
 	if (this->encoder) return 0;
 
 	int error;
@@ -82,7 +82,7 @@ int OpusEncoder::EnsureEncoder() {
 	return error;
 }
 
-int OpusEncoder::EnsureDecoder() {
+int NodeOpusEncoder::EnsureDecoder() {
 	if (this->decoder) return 0;
 
 	int error;
@@ -91,7 +91,7 @@ int OpusEncoder::EnsureDecoder() {
 	return error;
 }
 
-Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
+Napi::Value NodeOpusEncoder::Encode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (this->EnsureEncoder() != OPUS_OK) {
@@ -124,7 +124,7 @@ Napi::Value OpusEncoder::Encode(const CallbackInfo& args) {
 	return env.Null();
 }
 
-Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
+Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 1) {
@@ -170,7 +170,7 @@ Napi::Value OpusEncoder::Decode(const CallbackInfo& args) {
 	return env.Null();
 }
 
-void OpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
+void NodeOpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 2) {
@@ -197,7 +197,7 @@ void OpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
 	}
 }
 
-void OpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
+void NodeOpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 2) {
@@ -224,7 +224,7 @@ void OpusEncoder::ApplyDecoderCTL(const CallbackInfo& args) {
 	}
 }
 
-void OpusEncoder::SetBitrate(const CallbackInfo& args) {
+void NodeOpusEncoder::SetBitrate(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 1) {
@@ -250,7 +250,7 @@ void OpusEncoder::SetBitrate(const CallbackInfo& args) {
 	}
 }
 
-Napi::Value OpusEncoder::GetBitrate(const CallbackInfo& args) {
+Napi::Value NodeOpusEncoder::GetBitrate(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (this->EnsureEncoder() != OPUS_OK) {
@@ -265,7 +265,7 @@ Napi::Value OpusEncoder::GetBitrate(const CallbackInfo& args) {
 }
 
 Object Init(Napi::Env env, Object exports) {
-	return OpusEncoder::Init(env, exports);
+	return NodeOpusEncoder::Init(env, exports);
 }
 
 NODE_API_MODULE(opus, Init)
