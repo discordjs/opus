@@ -5,7 +5,7 @@ using namespace Napi;
 #define MAX_PACKET_SIZE 3 * 1276
 #define BITRATE 64000
 
-class OpusEncoder : public ObjectWrap<OpusEncoder> {
+class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 	private:
 		OpusEncoder* encoder;
 		OpusDecoder* decoder;
@@ -25,9 +25,9 @@ class OpusEncoder : public ObjectWrap<OpusEncoder> {
 	public:
 		static Object Init(Napi::Env env, Object exports);
 
-		OpusEncoder(const CallbackInfo& args);
+		NodeOpusEncoder(const CallbackInfo& args);
 	
-		~OpusEncoder();
+		~NodeOpusEncoder();
 
 		Napi::Value Encode(const CallbackInfo& args);
 		
