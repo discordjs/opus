@@ -9,36 +9,6 @@ on:
     branches:
       - '**'
 jobs:
-  build_x86_64_legacy_nodejs:
-    name: Build x86_64 (legacy Node.js)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-13, ubuntu-22.04, ubuntu-24.04, windows-2019]
-        node: [12, 13, 14, 15, 16, 17, 19]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
-
-      - name: Install dependencies
-        run: npm install --build-from-source
-
-      - name: Package prebuild
-        run: npm run build
-
   build_x86_64:
     name: Build x86_64
     runs-on: ${{ matrix.os }}
@@ -46,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-13, ubuntu-22.04, ubuntu-24.04, windows-2022]
-        node: [18, 20, 21, 22]
+        node: [18, 20, 22, 24]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -72,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+        node: [18, 20, 22, 24]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
@@ -85,46 +55,18 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: npm install --unsafe-perm --build-from-source
-
-      - name: Package prebuild
-        run: npm run build
-
-  build_aarch64_legacy_nodejs_linux:
-    name: Prebuild aarch64 Linux (legacy Node.js)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04]
-        node: [12, 13, 14, 15, 16, 17, 19]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install dependencies
         run: npm install --build-from-source
 
       - name: Package prebuild
-        run: |
-          sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
+        run: npm run build
 
   build_aarch64_linux:
     name: Prebuild aarch64 Linux
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04]
-        node: [18, 20, 21, 22]
+        node: [18, 20, 22, 24]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -143,61 +85,6 @@ jobs:
         run: |
           sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
-
-  build_aarch64_legacy_nodejs_mac:
-    name: Prebuild aarch64 macOS (legacy Node.js)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-14]
-        node: [16, 17, 19]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
-
-      - name: Install dependencies
-        run: npm install --build-from-source
-
-      - name: Package prebuild
-        run: npm run build
-
-  build_aarch64_mac:
-    name: Prebuild aarch64 macOS
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-14]
-        node: [18, 20, 21, 22]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install dependencies
-        run: npm install --build-from-source
-
-      - name: Package prebuild
-        run: npm run build
 
   build_musl_aarch64:
     name: Prebuild aarch64 (musl)
@@ -207,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+        node: [18, 20, 22, 24]
     steps:
       - name: Setup env with Node v${{ matrix.node }}
         run: |
@@ -226,7 +113,7 @@ jobs:
           $(pwd)/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc --version
 
       - name: Install dependencies
-        run: npm install --unsafe-perm --build-from-source
+        run: npm install --build-from-source
 
       - name: Package prebuild
         run: |
