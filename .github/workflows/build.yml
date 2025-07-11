@@ -9,13 +9,20 @@ on:
     branches:
       - '**'
 jobs:
-  build_x86_64:
-    name: Build x86_64
+  build:
+    name: Build node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, ubuntu-22.04, ubuntu-24.04, windows-2022]
+        os: [
+          macos-13,
+          ubuntu-22.04,
+          ubuntu-22.04-arm,
+          ubuntu-24.04,
+          ubuntu-24.04-arm,
+          windows-2022
+        ]
         node: [18, 20, 22, 24]
     steps:
       - name: Checkout repository
@@ -34,89 +41,35 @@ jobs:
       - name: Package prebuild
         run: npm run build
 
-  build_musl_x86_64:
-    name: Build x86_64 (musl)
-    runs-on: ubuntu-latest
-    container:
-      image: node:${{ matrix.node }}-alpine
+  build_musl:
+    name: Build node ${{ matrix.node }} on ${{ matrix.os }} (musl)
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
         node: [18, 20, 22, 24]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # Workaround https://github.com/actions/runner/issues/801
+      - name: Setup container
+        run: |
+          docker run --name runner --rm -it -d -v $PWD:/node-opus -w /node-opus node:${{ matrix.node }}-alpine
+
       - name: Setup env with Node v${{ matrix.node }}
         run: |
-          apk add --update
-          apk add --no-cache ca-certificates git curl build-base python3 g++ make
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+          docker exec runner apk add --update
+          docker exec runner apk add --no-cache ca-certificates git curl build-base python3 g++ make
 
       - name: Install dependencies
-        run: npm install --build-from-source
+        run: docker exec runner npm install --build-from-source
 
       - name: Package prebuild
-        run: npm run build
+        run: docker exec runner npm run build
 
-  build_aarch64_linux:
-    name: Prebuild aarch64 Linux
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [18, 20, 22, 24]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install dependencies
-        run: npm install --build-from-source
-
-      - name: Package prebuild
-        run: |
-          sudo apt update -y && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ npx node-pre-gyp --target_arch=arm64 configure build package
-
-  build_musl_aarch64:
-    name: Prebuild aarch64 (musl)
-    runs-on: ubuntu-latest
-    container:
-      image: node:${{ matrix.node }}-alpine
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [18, 20, 22, 24]
-    steps:
-      - name: Setup env with Node v${{ matrix.node }}
-        run: |
-          apk add --update
-          apk add --no-cache ca-certificates git curl build-base python3 g++ make
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Setup musl cross compiler
-        run: |
-          curl -OL https://musl.cc/aarch64-linux-musl-cross.tgz
-          tar -xzvf aarch64-linux-musl-cross.tgz
-          $(pwd)/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc --version
-
-      - name: Install dependencies
-        run: npm install --build-from-source
-
-      - name: Package prebuild
-        run: |
-          CC=$(pwd)/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc \
-          CXX=$(pwd)/aarch64-linux-musl-cross/bin/aarch64-linux-musl-g++ \
-          npx node-pre-gyp --target_arch=arm64 configure build package
+      - name: Stop container
+        run: docker rm -f runner
