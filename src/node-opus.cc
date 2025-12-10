@@ -66,7 +66,7 @@ NodeOpusEncoder::NodeOpusEncoder(const CallbackInfo& args): ObjectWrap<NodeOpusE
 	}
 
 	this->application = OPUS_APPLICATION_AUDIO;
-	this->outPcm = new opus_int16[channels * MAX_FRAME_SIZE];
+	this->outPcm = new opus_int16[this->channels * MAX_FRAME_SIZE];
 }
 
 NodeOpusEncoder::~NodeOpusEncoder() {
