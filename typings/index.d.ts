@@ -1,6 +1,6 @@
 declare module '@discordjs/opus' {
 	export class OpusEncoder {
-		public constructor(rate: number, channels: number);
+		public constructor(rate?: number, channels?: number);
 		public encode(buf: Buffer): Buffer;
 		/**
 		 * Decodes the given Opus buffer to PCM signed 16-bit little-endian

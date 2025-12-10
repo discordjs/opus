@@ -46,20 +46,27 @@ NodeOpusEncoder::NodeOpusEncoder(const CallbackInfo& args): ObjectWrap<NodeOpusE
 	this->decoder = nullptr;
 	this->outPcm = nullptr;
 
-	if (args.Length() < 2) {
-		Napi::RangeError::New(args.Env(), "Expected 2 arguments").ThrowAsJavaScriptException();
-		return;
+	this->rate = 48000;
+	this->channels = 2;
+
+	if (args.Length() >= 1 && !args[0].IsUndefined()) {
+		if (!args[0].IsNumber()) {
+			Napi::TypeError::New(args.Env(), "Expected rate to be a number").ThrowAsJavaScriptException();
+			return;
+		}
+		this->rate = args[0].ToNumber().Int32Value();
 	}
 
-	if (!args[0].IsNumber() || !args[1].IsNumber()) {
-		Napi::TypeError::New(args.Env(), "Expected rate and channels to be numbers").ThrowAsJavaScriptException();
-		return;
+	if (args.Length() >= 2 && !args[1].IsUndefined()) {
+		if (!args[1].IsNumber()) {
+			Napi::TypeError::New(args.Env(), "Expected channels to be a number").ThrowAsJavaScriptException();
+			return;
+		}
+		this->channels = args[1].ToNumber().Int32Value();
 	}
 
-	this->rate = args[0].ToNumber().Int32Value();
-	this->channels = args[1].ToNumber().Int32Value();
 	this->application = OPUS_APPLICATION_AUDIO;
-	this->outPcm = new opus_int16[channels * MAX_FRAME_SIZE];
+	this->outPcm = new opus_int16[this->channels * MAX_FRAME_SIZE];
 }
 
 NodeOpusEncoder::~NodeOpusEncoder() {
