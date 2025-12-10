@@ -10,24 +10,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-          macos-13,
           macos-14,
           macos-15,
           ubuntu-22.04,
           ubuntu-22.04-arm,
           ubuntu-24.04,
           ubuntu-24.04-arm,
-          windows-2022
+          windows-2022,
+          windows-2025
         ]
-        node: [18, 20, 22, 24]
+        node: [20, 22, 24, 25]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Install Node v${{ matrix.node }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -51,10 +51,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
-        node: [18, 20, 22, 24]
+        node: [20, 22, 24, 25]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
