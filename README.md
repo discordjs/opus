@@ -14,6 +14,10 @@ const encoder = new OpusEncoder(48_000, 2);
 // Encode and decode.
 const encoded = encoder.encode(buffer);
 const decoded = encoder.decode(encoded);
+
+// Encode and decode in float32.
+const encodedFP = encoder.encodeFloat(buffer);
+const decodedFP = encoder.decodeFloat(encodedFP);
 ```
 
 ## Platform support
