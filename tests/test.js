@@ -15,6 +15,15 @@ const { OpusEncoder } = require('../lib/index.js');
   
   assert(decoded.length === 640, 'Decoded frame length is not 640');
   assert(reEncoded.length === 45, 're-encoded frame length is not 45');
+
+  const decodedFloat = opus.decodeFloat(frame);
+  
+  const reEncodedFloat = opus.encodeFloat(decodedFloat);
+  
+  // float32 buffer should be 2x the size of int16 buffer
+  assert(decodedFloat.length === 1280, 'Decoded float frame length is not 1280');
+  // Encoded size differs slightly due to precision differences
+  assert(reEncodedFloat.length === 43, 're-encoded float frame length is not 43');
 }
 
 // Default values work
