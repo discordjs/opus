@@ -45,6 +45,37 @@ jobs:
         with:
           path: 'build/stage/**/*.tar.gz'
 
+  bun:
+    name: Bun build and test on ubuntu
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install Node v24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --ignore-scripts
+
+      - name: Run native install
+        run: bun run install
+
+      - name: Build prebuild
+        run: bun run build
+
+      - name: Run tests
+        run: bun run test
+
   build_musl:
     name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (musl)
     runs-on: ${{ matrix.os }}

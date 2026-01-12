@@ -26,3 +26,25 @@ const decoded = encoder.decode(encoded);
 - macOS x64
 - macOS arm64
 - Windows x64
+
+## Bun support
+
+Bun does not run lifecycle scripts by default. You can either trust this dependency or run the install script manually. Bun uses the Node 20 N-API prebuilds by default:
+
+```bash
+bun pm trust @discordjs/opus
+bun install
+```
+
+```bash
+bun install --ignore-scripts
+bun run install
+```
+
+If you use a monorepo, run the command in the workspace that installs `@discordjs/opus`.
+
+To run the test suite with Bun, use:
+
+```bash
+bun run test
+```
