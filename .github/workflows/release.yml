@@ -74,7 +74,7 @@ jobs:
         run: bun run build
 
       - name: Run tests
-        run: bun run test
+        run: bun run test:bun
 
   build_musl:
     name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (musl)

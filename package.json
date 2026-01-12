@@ -11,7 +11,8 @@
 		"build": "bun x node-pre-gyp install build package || node-pre-gyp install build package",
 		"lint": "prettier --check . && eslint lib --format=pretty",
 		"lint:fix": "prettier --write . && eslint lib --fix --format=pretty",
-		"test": "bun tests/test.js || node tests/test.js"
+		"test": "node tests/test.js",
+		"test:bun": "bun tests/test.js"
 	},
 	"keywords": [
 		"native",

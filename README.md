@@ -46,5 +46,5 @@ If you use a monorepo, run the command in the workspace that installs `@discordj
 To run the test suite with Bun, use:
 
 ```bash
-bun run test
+bun run test:bun
 ```
