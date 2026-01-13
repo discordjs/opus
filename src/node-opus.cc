@@ -169,6 +169,31 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		}
 	}
 
+	// Optional frame_size parameter (defaults to inferred or MAX_FRAME_SIZE)
+	// For PLC (data==NULL) or FEC (decode_fec=1), frame_size should be exactly
+	// the duration of the missing audio, otherwise the decoder will not be in
+	// the optimal state to decode the next incoming packet.
+	int frame_size = MAX_FRAME_SIZE;
+	if (args.Length() >= 3 && !args[2].IsUndefined()) {
+		if (!args[2].IsNumber()) {
+			Napi::TypeError::New(env, "frame_size parameter must be a number").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+		frame_size = args[2].ToNumber().Int32Value();
+
+		// Validate frame_size
+		if (frame_size <= 0 || frame_size > MAX_FRAME_SIZE) {
+			Napi::RangeError::New(env, "frame_size must be between 1 and " + std::to_string(MAX_FRAME_SIZE)).ThrowAsJavaScriptException();
+			return env.Null();
+		}
+	} else if (compressedData != nullptr) {
+		// Try to infer frame_size from the packet
+		int inferred_size = opus_packet_get_nb_samples(compressedData, compressedDataLength, this->rate);
+		if (inferred_size > 0 && inferred_size <= MAX_FRAME_SIZE) {
+			frame_size = inferred_size;
+		}
+	}
+
 	if (this->EnsureDecoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
 		return env.Null();
@@ -179,7 +204,7 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		compressedData,
 		compressedDataLength,
 		&(this->outPcm[0]),
-		MAX_FRAME_SIZE,
+		frame_size,
 		decode_fec
 	);
 

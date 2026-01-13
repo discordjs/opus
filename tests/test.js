@@ -35,13 +35,24 @@ const { OpusEncoder } = require('../lib/index.js');
 {
   const opus = new OpusEncoder(16_000, 1);
 
-  // Decode with null for packet loss concealment
+  // Decode with null for packet loss concealment (using default MAX_FRAME_SIZE)
   const plcFrame = opus.decode(null);
   assert(plcFrame.length > 0, 'PLC frame should have length > 0');
 
-  // Decode with undefined for packet loss concealment
+  // Decode with undefined for packet loss concealment (using default MAX_FRAME_SIZE)
   const plcFrame2 = opus.decode(undefined);
   assert(plcFrame2.length > 0, 'PLC frame should have length > 0');
+
+  // Decode with null and specific frame_size for proper PLC
+  // For 16kHz, 20ms = 320 samples, so we expect 320 * 2 bytes = 640 bytes output
+  const plcFrame3 = opus.decode(null, 0, 320);
+  assert(plcFrame3.length === 640, `PLC frame with frame_size=320 should be 640 bytes, got ${plcFrame3.length}`);
+
+  // Test with 48kHz decoder
+  const opus48 = new OpusEncoder(48_000, 2);
+  // For 48kHz stereo, 20ms = 960 samples per channel, output is 960 * 2 channels * 2 bytes = 3840 bytes
+  const plcFrame48 = opus48.decode(null, 0, 960);
+  assert(plcFrame48.length === 3840, `PLC frame for 48kHz stereo with frame_size=960 should be 3840 bytes, got ${plcFrame48.length}`);
 }
 
 // Forward error correction (FEC) parameter
