@@ -83,6 +83,45 @@ jobs:
         with:
           path: 'build/stage/**/*.tar.gz'
 
+  build_debian:
+    name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (debian)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+        node: [20, 22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup container
+        run: |
+          docker run --name runner --rm -it -d -v $PWD:/node-opus -w /node-opus node:${{ matrix.node }}-bullseye
+
+      - name: Setup env with Node v${{ matrix.node }}
+        run: |
+          docker exec runner apt-get update
+          docker exec runner apt-get install -y ca-certificates git curl build-essential python3 g++ make libopus-dev
+
+      - name: Install dependencies
+        run: docker exec runner npm install --build-from-source
+
+      - name: Package prebuild
+        run: docker exec runner npm run build
+
+      - name: Stop container
+        run: docker rm -f runner
+
+      - name: Upload prebuild asset
+        uses: icrawl/action-artifact@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: 'build/stage/**/*.tar.gz'
+
   build_musl:
     name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (musl)
     runs-on: ${{ matrix.os }}
@@ -90,7 +129,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
-        node: [20, 22, 24, 25]
+        node: [20, 22]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
