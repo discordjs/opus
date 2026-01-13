@@ -76,6 +76,13 @@ jobs:
       - name: Run tests
         run: bun run test:bun
 
+      - name: Upload prebuild asset
+        uses: icrawl/action-artifact@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: 'build/stage/**/*.tar.gz'
+
   build_musl:
     name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (musl)
     runs-on: ${{ matrix.os }}
