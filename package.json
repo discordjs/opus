@@ -7,11 +7,12 @@
 	"author": "iCrawl <icrawltogo@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"install": "node-pre-gyp install --fallback-to-build",
-		"build": "node-pre-gyp install build package",
+		"install": "bun x node-pre-gyp install --fallback-to-build || node-pre-gyp install --fallback-to-build",
+		"build": "bun x node-pre-gyp install build package || node-pre-gyp install build package",
 		"lint": "prettier --check . && eslint lib --format=pretty",
 		"lint:fix": "prettier --write . && eslint lib --fix --format=pretty",
-		"test": "node tests/test.js"
+		"test": "node tests/test.js",
+		"test:bun": "bun tests/test.js"
 	},
 	"keywords": [
 		"native",
@@ -51,9 +52,9 @@
 	},
 	"binary": {
 		"module_name": "opus",
-		"module_path": "./prebuild/{node_abi}-napi-v{napi_build_version}-{platform}-{arch}-{libc}-{libc_version}/",
+		"module_path": "./prebuild/{node_napi_label}-{platform}-{arch}-{libc}-{libc_version}/",
 		"remote_path": "v{version}",
-		"package_name": "{module_name}-v{version}-{node_abi}-napi-v{napi_build_version}-{platform}-{arch}-{libc}-{libc_version}.tar.gz",
+		"package_name": "{module_name}-v{version}-{node_napi_label}-{platform}-{arch}-{libc}-{libc_version}.tar.gz",
 		"host": "https://github.com/discordjs/opus/releases/download/",
 		"napi_versions": [
 			3
