@@ -135,18 +135,39 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 1) {
-		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		Napi::RangeError::New(env, "Expected at least 1 argument").ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
-	if (!args[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
-		return env.Null();
+	// Support null/undefined for packet loss concealment (PLC)
+	unsigned char* compressedData = nullptr;
+	size_t compressedDataLength = 0;
+
+	if (!args[0].IsNull() && !args[0].IsUndefined()) {
+		if (!args[0].IsBuffer()) {
+			Napi::TypeError::New(env, "Provided input needs to be a buffer, null, or undefined").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+
+		Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
+		compressedData = buf.Data();
+		compressedDataLength = buf.Length();
 	}
 
-	Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
-	unsigned char* compressedData = buf.Data();
-	size_t compressedDataLength = buf.Length();
+	// Optional decode_fec parameter (defaults to 0)
+	int decode_fec = 0;
+	if (args.Length() >= 2 && !args[1].IsUndefined()) {
+		if (!args[1].IsNumber() && !args[1].IsBoolean()) {
+			Napi::TypeError::New(env, "decode_fec parameter must be a number or boolean").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+
+		if (args[1].IsBoolean()) {
+			decode_fec = args[1].ToBoolean().Value() ? 1 : 0;
+		} else {
+			decode_fec = args[1].ToNumber().Int32Value();
+		}
+	}
 
 	if (this->EnsureDecoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
@@ -159,7 +180,7 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		compressedDataLength,
 		&(this->outPcm[0]),
 		MAX_FRAME_SIZE,
-		/* decode_fec */ 0
+		decode_fec
 	);
 
 	if (decodedSamples < 0) {
