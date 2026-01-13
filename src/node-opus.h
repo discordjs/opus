@@ -32,7 +32,9 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		Napi::Value Encode(const CallbackInfo& args);
 		
 		Napi::Value Decode(const CallbackInfo& args);
-		
+
+		Napi::Value Conceal(const CallbackInfo& args);
+
 		void ApplyEncoderCTL(const CallbackInfo& args);
 		
 		void ApplyDecoderCTL(const CallbackInfo& args);
