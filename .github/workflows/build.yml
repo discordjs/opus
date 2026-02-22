@@ -76,3 +76,42 @@ jobs:
 
       - name: Stop container
         run: docker rm -f runner
+
+  build_glibc_241:
+    name: Build node ${{ matrix.node }} on ${{ matrix.arch }} (glibc 2.41)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            node: 22
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            node: 22
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup container
+        run: |
+          docker run --name runner --rm -it -d -v $PWD:/node-opus -w /node-opus debian:trixie
+
+      - name: Setup env with Node v${{ matrix.node }}
+        run: |
+          docker exec runner apt-get update
+          docker exec runner apt-get install -y curl build-essential python3 git ca-certificates
+          docker exec runner bash -c "curl -fsSL https://deb.nodesource.com/setup_${{ matrix.node }}.x | bash -"
+          docker exec runner apt-get install -y nodejs
+
+      - name: Install dependencies
+        run: docker exec runner npm install --build-from-source
+
+      - name: Package prebuild
+        run: docker exec runner npm run build
+
+      - name: Stop container
+        run: docker rm -f runner
