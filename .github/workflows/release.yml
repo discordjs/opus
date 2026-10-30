@@ -32,11 +32,17 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      # npm 10 (Node 20/22) forces its bundled node-gyp (10.x/11.x) on lifecycle scripts, which can't
+      # find Visual Studio 2026 on windows-2025. Running node-pre-gyp directly makes it resolve the
+      # node-gyp devDependency instead.
       - name: Install dependencies
-        run: npm install --build-from-source
+        run: npm install --ignore-scripts
+
+      - name: Build
+        run: node node_modules/@discordjs/node-pre-gyp/bin/node-pre-gyp install --fallback-to-build --build-from-source
 
       - name: Package prebuild
-        run: npm run build
+        run: node node_modules/@discordjs/node-pre-gyp/bin/node-pre-gyp install build package
 
       - name: Upload prebuild asset
         uses: icrawl/action-artifact@v2
