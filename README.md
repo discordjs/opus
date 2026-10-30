@@ -14,6 +14,9 @@ const encoder = new OpusEncoder(48_000, 2);
 // Encode and decode.
 const encoded = encoder.encode(buffer);
 const decoded = encoder.decode(encoded);
+
+// Version of the bundled libopus, e.g. 'libopus 1.5.2'.
+const version = OpusEncoder.getVersion();
 ```
 
 ## Platform support

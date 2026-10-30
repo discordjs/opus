@@ -11,5 +11,9 @@ declare module '@discordjs/opus' {
 		public applyDecoderCTL(ctl: number, value: number): void;
 		public setBitrate(bitrate: number): void;
 		public getBitrate(): number;
+		/**
+		 * Returns the version string of the linked libopus
+		 */
+		public static getVersion(): string;
 	}
 }

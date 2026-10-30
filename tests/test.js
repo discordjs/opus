@@ -17,6 +17,11 @@ const { OpusEncoder } = require('../lib/index.js');
   assert(reEncoded.length === 45, 're-encoded frame length is not 45');
 }
 
+// Linked libopus version matches the deps/opus submodule
+{
+  assert.match(OpusEncoder.getVersion(), /^libopus 1\.5\.2(?!\d)/);
+}
+
 // Default values work
 {
   new OpusEncoder();

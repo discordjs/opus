@@ -40,4 +40,6 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		void SetBitrate(const CallbackInfo& args);
 		
 		Napi::Value GetBitrate(const CallbackInfo& args);
+
+		static Napi::Value GetVersion(const CallbackInfo& args);
 };

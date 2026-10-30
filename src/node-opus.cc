@@ -35,6 +35,7 @@ Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 		InstanceMethod("applyDecoderCTL", &NodeOpusEncoder::ApplyDecoderCTL),
 		InstanceMethod("setBitrate", &NodeOpusEncoder::SetBitrate),
 		InstanceMethod("getBitrate", &NodeOpusEncoder::GetBitrate),
+		StaticMethod("getVersion", &NodeOpusEncoder::GetVersion)
 	});
 
 	exports.Set("OpusEncoder", func);
@@ -269,6 +270,10 @@ Napi::Value NodeOpusEncoder::GetBitrate(const CallbackInfo& args) {
 	opus_encoder_ctl(this->encoder, OPUS_GET_BITRATE(&bitrate));
 
 	return Napi::Number::New(env, bitrate);
+}
+
+Napi::Value NodeOpusEncoder::GetVersion(const CallbackInfo& args) {
+	return Napi::String::New(args.Env(), opus_get_version_string());
 }
 
 Object Init(Napi::Env env, Object exports) {
