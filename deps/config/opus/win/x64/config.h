@@ -59,6 +59,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-#define PACKAGE_VERSION "1.3.1"
+#define PACKAGE_VERSION "1.5.2"
 
 #endif /* CONFIG_H */

@@ -173,7 +173,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.3.1"
+#define PACKAGE_VERSION "1.5.2"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
