@@ -16,13 +16,15 @@ jobs:
       matrix:
         os: [
           macos-15,
+          macos-15-intel,
           macos-26,
           ubuntu-22.04,
           ubuntu-22.04-arm,
           ubuntu-24.04,
           ubuntu-24.04-arm,
           windows-2022,
-          windows-2025
+          windows-2025,
+          windows-11-arm
         ]
         node: [22, 24, 26]
     steps:
@@ -56,7 +58,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
         node: [22, 24, 26]
     steps:
       - name: Checkout repository
