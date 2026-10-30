@@ -27,16 +27,21 @@ jobs:
         with:
           submodules: true
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Install Node v${{ matrix.node }}
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
       - name: Install dependencies
-        run: npm install --build-from-source
+        run: pnpm install --frozen-lockfile
+        env:
+          npm_config_build_from_source: true
 
       - name: Package prebuild
-        run: npm run build
+        run: pnpm run build
 
       - name: Upload prebuild asset
         uses: icrawl/action-artifact@v2
@@ -68,12 +73,13 @@ jobs:
         run: |
           docker exec runner apk add --update
           docker exec runner apk add --no-cache ca-certificates git curl build-base python3 g++ make
+          docker exec runner sh -c 'npm install -g "$(node -p "require(\"./package.json\").packageManager")"'
 
       - name: Install dependencies
-        run: docker exec runner npm install --build-from-source
+        run: docker exec -e npm_config_build_from_source=true runner pnpm install --frozen-lockfile
 
       - name: Package prebuild
-        run: docker exec runner npm run build
+        run: docker exec runner pnpm run build
 
       - name: Stop container
         run: docker rm -f runner
