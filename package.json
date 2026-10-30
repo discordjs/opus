@@ -39,16 +39,10 @@
 		"prettier": "^3.7.4",
 		"typescript": "~5.9.3"
 	},
-	"overrides": {
-		"eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-typescript-sort-keys": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-sonarjs": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-vue": "npm:@favware/skip-dependency@latest"
-	},
 	"engines": {
 		"node": ">=20"
 	},
+	"packageManager": "pnpm@12.16.1",
 	"binary": {
 		"module_name": "opus",
 		"module_path": "./prebuild/{node_abi}-napi-v{napi_build_version}-{platform}-{arch}-{libc}-{libc_version}/",

@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-          macos-14,
           macos-15,
           macos-26,
           ubuntu-22.04,
@@ -26,12 +25,15 @@ jobs:
           windows-2022,
           windows-2025
         ]
-        node: [20, 22, 24, 25]
+        node: [22, 24, 26]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           submodules: true
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
 
       - name: Install Node v${{ matrix.node }}
         uses: actions/setup-node@v6
@@ -39,10 +41,12 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install dependencies
-        run: npm install --build-from-source
+        run: pnpm install --frozen-lockfile
+        env:
+          npm_config_build_from_source: true
 
       - name: Package prebuild
-        run: npm run build
+        run: pnpm run build
 
   build_musl:
     name: Build node ${{ matrix.node }} on ${{ matrix.os }} (musl)
@@ -51,7 +55,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
-        node: [20, 22, 24, 25]
+        node: [22, 24, 26]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -67,12 +71,13 @@ jobs:
         run: |
           docker exec runner apk add --update
           docker exec runner apk add --no-cache ca-certificates git curl build-base python3 g++ make
+          docker exec runner sh -c 'npm install -g "$(node -p "require(\"./package.json\").packageManager")"'
 
       - name: Install dependencies
-        run: docker exec runner npm install --build-from-source
+        run: docker exec -e npm_config_build_from_source=true runner pnpm install --frozen-lockfile
 
       - name: Package prebuild
-        run: docker exec runner npm run build
+        run: docker exec runner pnpm run build
 
       - name: Stop container
         run: docker rm -f runner
