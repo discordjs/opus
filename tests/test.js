@@ -39,4 +39,12 @@ const { OpusEncoder } = require('../lib/index.js');
 	assert.throws(() => opus.decode(Buffer.alloc(3)), /Could not create decoder/);
 }
 
+// Failing to encode throws
+{
+	const opus = new OpusEncoder(48_000, 2);
+
+	assert.throws(() => opus.encode(Buffer.alloc(10)), /One or more invalid\/out of range arguments/);
+	assert(opus.encode(Buffer.alloc(960 * 2 * 2)).length > 0, 'Encoding a valid frame after an error failed');
+}
+
 console.log('Passed');
