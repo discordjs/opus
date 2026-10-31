@@ -244,6 +244,19 @@
                         ],
                     }
                 ],
+                [
+                    "OS==\"win\" and target_arch==\"arm64\"",
+                    {
+                        # Node's common.gypi builds win-arm64 Release with /fp:strict, which
+                        # rejects the floating-point constant initializers in silk/tables_*.c
+                        # (C2099). Use MSVC's default /fp:precise, like upstream's CMake build.
+                        "configurations": {
+                            "Release": {
+                                "msvs_settings": {"VCCLCompilerTool": {"FloatingPointModel": 0}},
+                            },
+                        },
+                    }
+                ],
             ],
         },
     ],
