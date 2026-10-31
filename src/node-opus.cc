@@ -135,18 +135,64 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
 	if (args.Length() < 1) {
-		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		Napi::RangeError::New(env, "Expected at least 1 argument").ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
-	if (!args[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
-		return env.Null();
+	// Support null/undefined for packet loss concealment (PLC)
+	unsigned char* compressedData = nullptr;
+	size_t compressedDataLength = 0;
+
+	if (!args[0].IsNull() && !args[0].IsUndefined()) {
+		if (!args[0].IsBuffer()) {
+			Napi::TypeError::New(env, "Provided input needs to be a buffer, null, or undefined").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+
+		Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
+		compressedData = buf.Data();
+		compressedDataLength = buf.Length();
 	}
 
-	Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
-	unsigned char* compressedData = buf.Data();
-	size_t compressedDataLength = buf.Length();
+	// Optional decode_fec parameter (defaults to 0)
+	int decode_fec = 0;
+	if (args.Length() >= 2 && !args[1].IsUndefined()) {
+		if (!args[1].IsNumber() && !args[1].IsBoolean()) {
+			Napi::TypeError::New(env, "decode_fec parameter must be a number or boolean").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+
+		if (args[1].IsBoolean()) {
+			decode_fec = args[1].ToBoolean().Value() ? 1 : 0;
+		} else {
+			decode_fec = args[1].ToNumber().Int32Value();
+		}
+	}
+
+	// Optional frame_size parameter (defaults to inferred or MAX_FRAME_SIZE)
+	// For PLC (data==NULL) or FEC (decode_fec=1), frame_size should be exactly
+	// the duration of the missing audio, otherwise the decoder will not be in
+	// the optimal state to decode the next incoming packet.
+	int frame_size = MAX_FRAME_SIZE;
+	if (args.Length() >= 3 && !args[2].IsUndefined()) {
+		if (!args[2].IsNumber()) {
+			Napi::TypeError::New(env, "frame_size parameter must be a number").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+		frame_size = args[2].ToNumber().Int32Value();
+
+		// Validate frame_size
+		if (frame_size <= 0 || frame_size > MAX_FRAME_SIZE) {
+			Napi::RangeError::New(env, "frame_size must be between 1 and " + std::to_string(MAX_FRAME_SIZE)).ThrowAsJavaScriptException();
+			return env.Null();
+		}
+	} else if (compressedData != nullptr) {
+		// Try to infer frame_size from the packet
+		int inferred_size = opus_packet_get_nb_samples(compressedData, compressedDataLength, this->rate);
+		if (inferred_size > 0 && inferred_size <= MAX_FRAME_SIZE) {
+			frame_size = inferred_size;
+		}
+	}
 
 	if (this->EnsureDecoder() != OPUS_OK) {
 		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
@@ -158,8 +204,8 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		compressedData,
 		compressedDataLength,
 		&(this->outPcm[0]),
-		MAX_FRAME_SIZE,
-		/* decode_fec */ 0
+		frame_size,
+		decode_fec
 	);
 
 	if (decodedSamples < 0) {
