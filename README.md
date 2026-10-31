@@ -20,9 +20,30 @@ const decoded = encoder.decode(encoded);
 
 ⚠ Node.js v22 or newer is required.
 
-- Linux x64 & ia32
-- Linux arm (RPi 1 & 2)
-- Linux arm64 (RPi 3)
-- macOS x64
-- macOS arm64
-- Windows x64
+`@discordjs/opus` should build on any platform supported by Node.js and [node-gyp]. These are built and tested in CI:
+
+- Linux x64 & arm64 (glibc and musl)
+- macOS x64 & arm64
+- Windows x64 & arm64
+
+## Prebuilt binaries
+
+On install, a prebuilt binary is downloaded if one matches your platform. Otherwise the addon is compiled from source,
+which requires the [node-gyp prerequisites] (Python and a C/C++ toolchain).
+
+Prebuilt binaries are published for Node.js 22, 24 and 26 on:
+
+| OS      | Architectures | Notes                            |
+| ------- | ------------- | -------------------------------- |
+| Linux   | x64, arm64    | glibc 2.35, 2.36, 2.39, and 2.41 |
+| Linux   | x64, arm64    | musl                             |
+| macOS   | x64, arm64    |                                  |
+| Windows | x64, arm64    |                                  |
+
+Linux prebuilds match by exact glibc versions and the musl version of the `node:<version>-alpine` images at release
+time; other versions build from source.
+
+To always build from source, set `npm_config_build_from_source=true` when installing.
+
+[node-gyp]: https://github.com/nodejs/node-gyp
+[node-gyp prerequisites]: https://github.com/nodejs/node-gyp#installation
