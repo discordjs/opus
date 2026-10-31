@@ -4,8 +4,8 @@
 
 using namespace Napi;
 
-const char* getDecodeError(int decodedSamples) {
-	switch(decodedSamples) {
+const char* getOpusError(int error) {
+	switch(error) {
 		case OPUS_BAD_ARG:
 			return "One or more invalid/out of range arguments";
 		case OPUS_BUFFER_TOO_SMALL:
@@ -118,12 +118,12 @@ Napi::Value NodeOpusEncoder::Encode(const CallbackInfo& args) {
 
 	int compressedLength = opus_encode(this->encoder, pcm, frameSize, &(this->outOpus[0]), MAX_PACKET_SIZE);
 
-	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
+	if (compressedLength < 0) {
+		Napi::TypeError::New(env, getOpusError(compressedLength)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
 
-	if (!actualBuf.IsEmpty()) return actualBuf;
-
-	Napi::Error::New(env, "Could not encode the data").ThrowAsJavaScriptException();
-	return env.Null();
+	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
 }
 
 Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
@@ -158,18 +158,13 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	);
 
 	if (decodedSamples < 0) {
-		Napi::TypeError::New(env, getDecodeError(decodedSamples)).ThrowAsJavaScriptException();
+		Napi::TypeError::New(env, getOpusError(decodedSamples)).ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
 	int decodedLength = decodedSamples * 2 * this->channels;
 
-	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
-
-	if (!actualBuf.IsEmpty()) return actualBuf;
-
-	Napi::Error::New(env, "Could not decode the data").ThrowAsJavaScriptException();
-	return env.Null();
+	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
 }
 
 void NodeOpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {
