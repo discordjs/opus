@@ -111,7 +111,7 @@ Napi::Value NodeOpusEncoder::Encode(const CallbackInfo& args) {
 		return env.Null();
 	}
 
-	if (!args[0].IsBuffer()) {
+	if (!args[0].IsTypedArray()) {
 		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
 		return env.Null();
 	}
@@ -139,7 +139,7 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		return env.Null();
 	}
 
-	if (!args[0].IsBuffer()) {
+	if (!args[0].IsTypedArray()) {
 		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
 		return env.Null();
 	}

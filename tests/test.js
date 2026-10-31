@@ -29,6 +29,14 @@ const { OpusEncoder } = require('../lib/index.js');
 	assert.throws(() => new OpusEncoder(null, '1'), /Expected rate to be a number/);
 	assert.throws(() => new OpusEncoder(16000, '1'), /Expected channels to be a number/);
 	assert.throws(() => new OpusEncoder(16000, null), /Expected channels to be a number/);
+	assert.throws(
+		() => new OpusEncoder().encode(new DataView(new ArrayBuffer(3840))),
+		/Provided input needs to be a buffer/,
+	);
+	assert.throws(
+		() => new OpusEncoder().decode(new DataView(new ArrayBuffer(0))),
+		/Provided input needs to be a buffer/,
+	);
 }
 
 console.log('Passed');
