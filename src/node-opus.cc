@@ -44,7 +44,6 @@ Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 NodeOpusEncoder::NodeOpusEncoder(const CallbackInfo& args): ObjectWrap<NodeOpusEncoder>(args) {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
-	this->outPcm = nullptr;
 
 	this->rate = 48000;
 	this->channels = 2;
@@ -66,7 +65,6 @@ NodeOpusEncoder::NodeOpusEncoder(const CallbackInfo& args): ObjectWrap<NodeOpusE
 	}
 
 	this->application = OPUS_APPLICATION_AUDIO;
-	this->outPcm = new opus_int16[this->channels * MAX_FRAME_SIZE];
 }
 
 NodeOpusEncoder::~NodeOpusEncoder() {
@@ -75,9 +73,6 @@ NodeOpusEncoder::~NodeOpusEncoder() {
 
 	this->encoder = nullptr;
 	this->decoder = nullptr;
-
-	if (this->outPcm) delete this->outPcm;
-	this->outPcm = nullptr;
 }
 
 int NodeOpusEncoder::EnsureEncoder() {

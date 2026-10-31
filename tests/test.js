@@ -23,7 +23,7 @@ const { OpusEncoder } = require('../lib/index.js');
 	new OpusEncoder(undefined, undefined);
 }
 
-// Invalid values throw
+// Invalid data types throw
 {
 	assert.throws(() => new OpusEncoder('16000', 1), /Expected rate to be a number/);
 	assert.throws(() => new OpusEncoder(null, '1'), /Expected rate to be a number/);
@@ -37,6 +37,14 @@ const { OpusEncoder } = require('../lib/index.js');
 		() => new OpusEncoder().decode(new DataView(new ArrayBuffer(0))),
 		/Provided input needs to be a buffer/,
 	);
+}
+
+// Invalid values throw
+{
+	const opus = new OpusEncoder(48_000, -1);
+
+	assert.throws(() => opus.encode(Buffer.alloc(960 * 2)), /Could not create encoder/);
+	assert.throws(() => opus.decode(Buffer.alloc(3)), /Could not create decoder/);
 }
 
 console.log('Passed');
