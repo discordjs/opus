@@ -33,12 +33,12 @@ which requires the [node-gyp prerequisites] (Python and a C/C++ toolchain).
 
 Prebuilt binaries are published for Node.js 22, 24 and 26 on:
 
-| OS      | Architectures | Notes                            |
-| ------- | ------------- | -------------------------------- |
-| Linux   | x64, arm64    | glibc 2.35, 2.36, 2.39, and 2.41 |
-| Linux   | x64, arm64    | musl                             |
-| macOS   | x64, arm64    |                                  |
-| Windows | x64, arm64    |                                  |
+| OS      | Architectures | Notes                                  |
+| ------- | ------------- | -------------------------------------- |
+| Linux   | x64, arm64    | glibc 2.35, 2.36, 2.39, 2.41, and 2.43 |
+| Linux   | x64, arm64    | musl                                   |
+| macOS   | x64, arm64    |                                        |
+| Windows | x64, arm64    |                                        |
 
 Linux prebuilds match by exact glibc versions and the musl version of the `node:<version>-alpine` images at release
 time; other versions build from source.
