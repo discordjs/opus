@@ -31,6 +31,7 @@ Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 	Function func = DefineClass(env, "OpusEncoder", {
 		InstanceMethod("encode", &NodeOpusEncoder::Encode),
 		InstanceMethod("decode", &NodeOpusEncoder::Decode),
+		InstanceMethod("conceal", &NodeOpusEncoder::Conceal),
 		InstanceMethod("applyEncoderCTL", &NodeOpusEncoder::ApplyEncoderCTL),
 		InstanceMethod("applyDecoderCTL", &NodeOpusEncoder::ApplyDecoderCTL),
 		InstanceMethod("setBitrate", &NodeOpusEncoder::SetBitrate),
@@ -160,6 +161,73 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 		&(this->outPcm[0]),
 		MAX_FRAME_SIZE,
 		/* decode_fec */ 0
+	);
+
+	if (decodedSamples < 0) {
+		Napi::TypeError::New(env, getDecodeError(decodedSamples)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	int decodedLength = decodedSamples * 2 * this->channels;
+
+	Buffer<char> actualBuf = Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
+
+	if (!actualBuf.IsEmpty()) return actualBuf;
+
+	Napi::Error::New(env, "Could not decode the data").ThrowAsJavaScriptException();
+	return env.Null();
+}
+
+Napi::Value NodeOpusEncoder::Conceal(const CallbackInfo& args) {
+	Napi::Env env = args.Env();
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected at least 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (!args[0].IsNumber()) {
+		Napi::TypeError::New(env, "frame_size parameter must be a number").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	int frame_size = args[0].ToNumber().Int32Value();
+
+	// Validate frame_size
+	if (frame_size <= 0 || frame_size > MAX_FRAME_SIZE) {
+		Napi::RangeError::New(env, "frame_size must be between 1 and " + std::to_string(MAX_FRAME_SIZE)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	// Optional packet parameter for FEC
+	unsigned char* compressedData = nullptr;
+	size_t compressedDataLength = 0;
+	int decode_fec = 0;
+
+	if (args.Length() >= 2 && !args[1].IsNull() && !args[1].IsUndefined()) {
+		if (!args[1].IsBuffer()) {
+			Napi::TypeError::New(env, "Packet parameter must be a buffer, null, or undefined").ThrowAsJavaScriptException();
+			return env.Null();
+		}
+
+		Buffer<unsigned char> buf = args[1].As<Buffer<unsigned char>>();
+		compressedData = buf.Data();
+		compressedDataLength = buf.Length();
+		decode_fec = 1;  // Enable FEC when packet is provided
+	}
+
+	if (this->EnsureDecoder() != OPUS_OK) {
+		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	int decodedSamples = opus_decode(
+		this->decoder,
+		compressedData,
+		compressedDataLength,
+		&(this->outPcm[0]),
+		frame_size,
+		decode_fec
 	);
 
 	if (decodedSamples < 0) {
