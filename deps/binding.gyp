@@ -1,5 +1,9 @@
 {
-    "variables": {"target_arch%": "x64"},
+    "variables": {
+        "target_arch%": "x64",
+        # Must match the deps/opus submodule tag.
+        "opus_version": "1.5.2",
+    },
     "target_defaults": {
         "default_configuration": "Debug",
         "configuration": {
@@ -197,17 +201,36 @@
                 "-Wno-incompatible-pointer-types",
             ],
             "include_dirs": [
-                "config/opus/<(OS)/<(target_arch)",
                 "opus/include",
                 "opus/celt",
                 "opus/silk",
                 "opus/silk/float",
             ],
-            "defines": ["PIC", "HAVE_CONFIG_H"],
+            "defines": [
+                "PIC",
+                "OPUS_BUILD",
+                "PACKAGE_VERSION=\"<(opus_version)\"",
+            ],
             "conditions": [
+                [
+                    "OS==\"win\"",
+                    {"defines": ["USE_ALLOCA"]},
+                    {"defines": ["VAR_ARRAYS", "HAVE_LRINT", "HAVE_LRINTF"]},
+                ],
+                [
+                    "OS==\"mac\" and target_arch==\"arm64\"",
+                    {
+                        "defines": [
+                            "OPUS_ARM_PRESUME_NEON_INTR",
+                            "OPUS_ARM_PRESUME_AARCH64_NEON_INTR",
+                            "ENABLE_HARDENING",
+                        ],
+                    },
+                ],
                 [
                     "target_arch==\"arm64\"",
                     {
+                        "defines": ["OPUS_ARM_MAY_HAVE_NEON_INTR"],
                         "sources": [
                             "opus/celt/arm/arm_celt_map.c",
                             "opus/celt/arm/armcpu.c",
