@@ -15,7 +15,8 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		int application;
 
 		unsigned char outOpus[MAX_PACKET_SIZE];
-		opus_int16* outPcm;
+		// Opus decodes at most 2 channels.
+		opus_int16 outPcm[2 * MAX_FRAME_SIZE];
 
 	protected:
 		int EnsureEncoder();
