@@ -28,27 +28,21 @@
 	},
 	"dependencies": {
 		"@discordjs/node-pre-gyp": "^0.4.5",
-		"node-addon-api": "^8.5.0"
+		"node-addon-api": "^8.9.2"
 	},
 	"devDependencies": {
-		"@types/node": "^25.0.0",
-		"eslint": "^9.39.1",
-		"eslint-config-neon": "^0.2.9",
-		"eslint-formatter-pretty": "^7.0.0",
-		"node-gyp": "^12.1.0",
-		"prettier": "^3.7.4",
-		"typescript": "~5.9.3"
-	},
-	"overrides": {
-		"eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-typescript-sort-keys": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-sonarjs": "npm:@favware/skip-dependency@latest",
-		"eslint-plugin-vue": "npm:@favware/skip-dependency@latest"
+		"@types/node": "^26.6.6",
+		"eslint": "^10.13.0",
+		"eslint-config-neon": "^0.5.4",
+		"eslint-formatter-pretty": "^7.1.0",
+		"node-gyp": "^13.1.0",
+		"prettier": "^3.9.10",
+		"typescript": "~6.0.3"
 	},
 	"engines": {
-		"node": ">=20"
+		"node": ">=22"
 	},
+	"packageManager": "pnpm@12.16.1",
 	"binary": {
 		"module_name": "opus",
 		"module_path": "./prebuild/{node_abi}-napi-v{napi_build_version}-{platform}-{arch}-{libc}-{libc_version}/",
