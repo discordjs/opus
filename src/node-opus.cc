@@ -76,7 +76,7 @@ NodeOpusEncoder::~NodeOpusEncoder() {
 	this->encoder = nullptr;
 	this->decoder = nullptr;
 
-	if (this->outPcm) delete this->outPcm;
+	if (this->outPcm) delete[] this->outPcm;
 	this->outPcm = nullptr;
 }
 
