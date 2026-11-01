@@ -1,0 +1,126 @@
+name: Prepare Release
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prepatch
+          - preminor
+          - premajor
+          - prerelease
+      prerelease_tag:
+        description: Pre-release identifier, used by the pre* bump types
+        required: true
+        default: rc
+        type: choice
+        options:
+          - alpha
+          - beta
+          - rc
+concurrency:
+  group: release-prepare
+  cancel-in-progress: false
+permissions: {}
+jobs:
+  prepare:
+    name: Prepare release PR
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Bump version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+          PRERELEASE_TAG: ${{ inputs.prerelease_tag }}
+        run: |
+          if [[ "$BUMP" == pre* ]]; then
+            pnpm version "$BUMP" --preid "$PRERELEASE_TAG" --no-git-tag-version
+          else
+            pnpm version "$BUMP" --no-git-tag-version
+          fi
+
+          VERSION=$(node -p "require('./package.json').version")
+          {
+            echo "version=$VERSION"
+            echo "tag=v$VERSION"
+          } | tee -a "$GITHUB_OUTPUT"
+
+      - name: Preview release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" \
+            -f target_commitish="$GITHUB_SHA" \
+            --jq .body > "$RUNNER_TEMP/release-notes.md"
+          cat "$RUNNER_TEMP/release-notes.md"
+
+      - name: Push release branch
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "release/$TAG"
+          git commit -am "chore: release $TAG"
+          git push --force origin "release/$TAG"
+
+      - name: Open release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          {
+            echo "Bumps \`@discordjs/opus\` to \`$VERSION\`."
+            echo
+            echo "Merging this PR runs the Publish Release workflow, which:"
+            echo "1. builds and tests the prebuilt binaries,"
+            echo "2. creates the \`$TAG\` GitHub release as a draft, attaches the binaries, then publishes it,"
+            echo "3. publishes \`@discordjs/opus@$VERSION\` to npm."
+            echo
+            echo "<details>"
+            echo "<summary>Release notes preview</summary>"
+            echo
+            echo "The published notes are regenerated on release and will also list this PR."
+            echo
+            echo '````markdown'
+            cat "$RUNNER_TEMP/release-notes.md"
+            echo '````'
+            echo
+            echo "</details>"
+          } > "$RUNNER_TEMP/pr-body.md"
+
+          BRANCH="release/$TAG"
+          gh pr list --state open --json number,headRefName \
+            --jq ".[] | select(.headRefName | startswith(\"release/v\")) | select(.headRefName != \"$BRANCH\") | .number" |
+            while read -r PR; do
+              gh pr close "$PR" --delete-branch --comment "Superseded by $BRANCH."
+            done
+
+          if gh pr view "$BRANCH" --json state --jq .state 2>/dev/null | grep -qx OPEN; then
+            gh pr edit "$BRANCH" --body-file "$RUNNER_TEMP/pr-body.md"
+          else
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore: release $TAG" \
+              --body-file "$RUNNER_TEMP/pr-body.md"
+          fi
