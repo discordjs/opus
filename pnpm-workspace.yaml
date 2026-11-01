@@ -1,15 +1,14 @@
 allowBuilds:
   unrs-resolver: true
-
 overrides:
   eslint-plugin-rxjs-x: npm:@favware/skip-dependency@latest
   eslint-plugin-rxjs-angular-x: npm:@favware/skip-dependency@latest
   eslint-plugin-typescript-sort-keys: npm:@favware/skip-dependency@latest
   eslint-plugin-sonarjs: npm:@favware/skip-dependency@latest
   eslint-plugin-vue: npm:@favware/skip-dependency@latest
-
 peerDependencyRules:
   allowAny:
     - '*'
   ignoreMissing:
     - '*'
+provenance: true

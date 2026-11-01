@@ -52,5 +52,8 @@
 		"napi_versions": [
 			3
 		]
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }

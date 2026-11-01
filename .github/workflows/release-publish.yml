@@ -1,0 +1,279 @@
+name: Publish Release
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [main]
+concurrency:
+  group: release-publish
+  cancel-in-progress: false
+permissions: {}
+jobs:
+  version:
+    name: Get version
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        startsWith(github.event.pull_request.head.ref, 'release/v')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.version.outputs.sha }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+      npm_tag: ${{ steps.version.outputs.npm_tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          PRERELEASE=false
+          NPM_TAG=latest
+          if [[ "$VERSION" == *-* ]]; then
+            PRERELEASE=true
+            PRERELEASE_PART="${VERSION#*-}"
+            NPM_TAG="${PRERELEASE_PART%%.*}"
+          fi
+
+          {
+            echo "sha=$(git rev-parse HEAD)"
+            echo "version=$VERSION"
+            echo "tag=v$VERSION"
+            echo "prerelease=$PRERELEASE"
+            echo "npm_tag=$NPM_TAG"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  prebuild:
+    name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+          macos-15,
+          macos-15-intel,
+          ubuntu-22.04,
+          ubuntu-22.04-arm,
+          ubuntu-24.04,
+          ubuntu-24.04-arm,
+          ubuntu-26.04,
+          ubuntu-26.04-arm,
+          windows-2022,
+          windows-11-arm
+        ]
+        node: [22, 24, 26]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+          submodules: true
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node v${{ matrix.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          npm_config_build_from_source: true
+
+      - name: Package prebuild
+        run: pnpm run build
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v7
+        with:
+          name: prebuild-${{ matrix.os }}-node-${{ matrix.node }}
+          path: build/stage/**/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  prebuild_debian:
+    name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (debian ${{ matrix.debian }})
+    needs: version
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        node: [22, 24, 26]
+        debian: [bookworm, trixie]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+          submodules: true
+          persist-credentials: false
+
+      - name: Setup container
+        run: |
+          docker run --name runner --rm -it -d -v $PWD:/node-opus -w /node-opus node:${{ matrix.node }}-${{ matrix.debian }}
+
+      - name: Setup env
+        run: docker exec runner sh -c 'npm install -g "$(node -p "require(\"./package.json\").packageManager")"'
+
+      - name: Install dependencies
+        run: docker exec -e npm_config_build_from_source=true runner pnpm install --frozen-lockfile
+
+      - name: Package prebuild
+        run: docker exec runner pnpm run build
+
+      - name: Run tests
+        run: docker exec runner pnpm test
+
+      - name: Stop container
+        run: docker rm -f runner
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v7
+        with:
+          name: prebuild-${{ matrix.os }}-node-${{ matrix.node }}-${{ matrix.debian }}
+          path: build/stage/**/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  prebuild_musl:
+    name: Prebuild node ${{ matrix.node }} on ${{ matrix.os }} (musl)
+    needs: version
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        node: [22, 24, 26]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+          submodules: true
+          persist-credentials: false
+
+      # Workaround https://github.com/actions/runner/issues/801
+      - name: Setup container
+        run: |
+          docker run --name runner --rm -it -d -v $PWD:/node-opus -w /node-opus node:${{ matrix.node }}-alpine
+
+      - name: Setup env with Node v${{ matrix.node }}
+        run: |
+          docker exec runner apk add --update
+          docker exec runner apk add --no-cache ca-certificates git curl build-base python3 g++ make
+          docker exec runner sh -c 'npm install -g "$(node -p "require(\"./package.json\").packageManager")"'
+
+      - name: Install dependencies
+        run: docker exec -e npm_config_build_from_source=true runner pnpm install --frozen-lockfile
+
+      - name: Package prebuild
+        run: docker exec runner pnpm run build
+
+      - name: Run tests
+        run: docker exec runner pnpm test
+
+      - name: Stop container
+        run: docker rm -f runner
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v7
+        with:
+          name: prebuild-${{ matrix.os }}-node-${{ matrix.node }}-musl
+          path: build/stage/**/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish GitHub release
+    needs: [version, prebuild, prebuild_debian, prebuild_musl]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download prebuilds
+        uses: actions/download-artifact@v8
+        with:
+          pattern: prebuild-*
+          path: prebuilds
+          merge-multiple: true
+
+      - name: Create and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ needs.version.outputs.sha }}
+          TAG: ${{ needs.version.outputs.tag }}
+          PRERELEASE: ${{ needs.version.outputs.prerelease }}
+        run: |
+          IS_DRAFT=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null || true)
+          if [[ "$IS_DRAFT" == "false" ]]; then
+            echo "::notice::Release $TAG is already published, skipping"
+            exit 0
+          fi
+          if [[ "$IS_DRAFT" == "true" ]]; then
+            # Left over from a failed run. Drafts don't create the tag, so only the draft goes.
+            gh release delete "$TAG" --yes
+          fi
+
+          ARGS=(--draft --target "$SHA" --title "$TAG" --generate-notes)
+          if [[ "$PRERELEASE" == "true" ]]; then
+            ARGS+=(--prerelease)
+          fi
+
+          gh release create "$TAG" "${ARGS[@]}" prebuilds/*.tar.gz
+          gh release edit "$TAG" --draft=false
+
+  npm:
+    name: Publish to npm
+    needs: [version, release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+          submodules: true
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Publish
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          NPM_TAG: ${{ needs.version.outputs.npm_tag }}
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          if pnpm view "$NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "::notice::$NAME@$VERSION is already on npm, skipping"
+            exit 0
+          fi
+          pnpm publish --no-git-checks --tag "$NPM_TAG"
