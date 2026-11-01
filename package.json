@@ -4,6 +4,21 @@
 	"description": "Opus bindings for Node",
 	"main": "lib/index.js",
 	"types": "typings/index.d.ts",
+	"files": [
+		"lib",
+		"src",
+		"typings",
+		"binding.gyp",
+		"deps/binding.gyp",
+		"deps/opus/COPYING",
+		"deps/opus/include",
+		"deps/opus/celt",
+		"deps/opus/silk",
+		"deps/opus/src",
+		"!deps/opus/celt/dump_modes",
+		"!deps/opus/celt/tests",
+		"!deps/opus/silk/tests"
+	],
 	"author": "iCrawl <icrawltogo@gmail.com>",
 	"license": "MIT",
 	"scripts": {
