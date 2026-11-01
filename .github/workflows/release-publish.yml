@@ -245,7 +245,7 @@ jobs:
             ARGS+=(--prerelease)
           fi
 
-          gh release create "$TAG" "${ARGS[@]}" prebuilds/*.tar.gz
+          gh release create "$TAG" "${ARGS[@]}" prebuilds/$TAG/*.tar.gz
           gh release edit "$TAG" --draft=false
 
   npm:
