@@ -10,6 +10,9 @@ concurrency:
 jobs:
   build:
     name: Build node ${{ matrix.node }} on ${{ matrix.os }}
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'chore: release v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -56,6 +59,9 @@ jobs:
 
   build_debian:
     name: Build node ${{ matrix.node }} on ${{ matrix.os }} (debian ${{ matrix.debian }})
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'chore: release v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -90,6 +96,9 @@ jobs:
 
   build_musl:
     name: Build node ${{ matrix.node }} on ${{ matrix.os }} (musl)
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'chore: release v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
