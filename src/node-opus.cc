@@ -1,6 +1,7 @@
 #include "napi.h"
 #include "../deps/opus/include/opus.h"
 #include "node-opus.h"
+#include <cstring>
 
 using namespace Napi;
 
@@ -30,7 +31,9 @@ Object NodeOpusEncoder::Init(Napi::Env env, Object exports) {
 
 	Function func = DefineClass(env, "OpusEncoder", {
 		InstanceMethod("encode", &NodeOpusEncoder::Encode),
+		InstanceMethod("encodeFloat", &NodeOpusEncoder::EncodeFloat),
 		InstanceMethod("decode", &NodeOpusEncoder::Decode),
+		InstanceMethod("decodeFloat", &NodeOpusEncoder::DecodeFloat),
 		InstanceMethod("applyEncoderCTL", &NodeOpusEncoder::ApplyEncoderCTL),
 		InstanceMethod("applyDecoderCTL", &NodeOpusEncoder::ApplyDecoderCTL),
 		InstanceMethod("setBitrate", &NodeOpusEncoder::SetBitrate),
@@ -126,6 +129,47 @@ Napi::Value NodeOpusEncoder::Encode(const CallbackInfo& args) {
 	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
 }
 
+Napi::Value NodeOpusEncoder::EncodeFloat(const CallbackInfo& args) {
+	Napi::Env env = args.Env();
+
+	if (this->EnsureEncoder() != OPUS_OK) {
+		Napi::Error::New(env, "Could not create encoder. Check the encoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (!args[0].IsTypedArray()) {
+		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	Buffer<char> buf = args[0].As<Buffer<char>>();
+	int frameSize = buf.Length() / sizeof(float) / this->channels;
+
+	// Opus never accepts frames longer than this, so don't bother copying them.
+	if (frameSize > MAX_FRAME_SIZE) {
+		Napi::TypeError::New(env, getOpusError(OPUS_BAD_ARG)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	// The buffer isn't guaranteed to be aligned for floats (e.g. pooled Buffers), so copy the samples out.
+	std::vector<float> pcm(static_cast<size_t>(frameSize) * this->channels);
+	memcpy(pcm.data(), buf.Data(), pcm.size() * sizeof(float));
+
+	int compressedLength = opus_encode_float(this->encoder, pcm.data(), frameSize, &(this->outOpus[0]), MAX_PACKET_SIZE);
+
+	if (compressedLength < 0) {
+		Napi::TypeError::New(env, getOpusError(compressedLength)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outOpus), compressedLength);
+}
+
 Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	Napi::Env env = args.Env();
 
@@ -165,6 +209,50 @@ Napi::Value NodeOpusEncoder::Decode(const CallbackInfo& args) {
 	int decodedLength = decodedSamples * 2 * this->channels;
 
 	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcm), decodedLength);
+}
+
+Napi::Value NodeOpusEncoder::DecodeFloat(const CallbackInfo& args) {
+	Napi::Env env = args.Env();
+
+	if (args.Length() < 1) {
+		Napi::RangeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	if (!args[0].IsTypedArray()) {
+		Napi::TypeError::New(env, "Provided input needs to be a buffer").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
+	unsigned char* compressedData = buf.Data();
+	size_t compressedDataLength = buf.Length();
+
+	if (this->EnsureDecoder() != OPUS_OK) {
+		Napi::Error::New(env, "Could not create decoder. Check the decoder parameters").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	// Opus decodes at most 2 channels.
+	if (this->outPcmFloat.empty()) this->outPcmFloat.resize(2 * MAX_FRAME_SIZE);
+
+	int decodedSamples = opus_decode_float(
+		this->decoder,
+		compressedData,
+		compressedDataLength,
+		this->outPcmFloat.data(),
+		MAX_FRAME_SIZE,
+		/* decode_fec */ 0
+	);
+
+	if (decodedSamples < 0) {
+		Napi::TypeError::New(env, getOpusError(decodedSamples)).ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	int decodedLength = decodedSamples * sizeof(float) * this->channels;
+
+	return Buffer<char>::Copy(env, reinterpret_cast<char*>(this->outPcmFloat.data()), decodedLength);
 }
 
 void NodeOpusEncoder::ApplyEncoderCTL(const CallbackInfo& args) {

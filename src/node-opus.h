@@ -1,3 +1,5 @@
+#include <vector>
+
 using namespace Napi;
 
 #define FRAME_SIZE 960
@@ -17,6 +19,8 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		unsigned char outOpus[MAX_PACKET_SIZE];
 		// Opus decodes at most 2 channels.
 		opus_int16 outPcm[2 * MAX_FRAME_SIZE];
+		// Only allocated once decodeFloat() is used.
+		std::vector<float> outPcmFloat;
 
 	protected:
 		int EnsureEncoder();
@@ -31,8 +35,12 @@ class NodeOpusEncoder : public ObjectWrap<NodeOpusEncoder> {
 		~NodeOpusEncoder();
 
 		Napi::Value Encode(const CallbackInfo& args);
+
+		Napi::Value EncodeFloat(const CallbackInfo& args);
 		
 		Napi::Value Decode(const CallbackInfo& args);
+
+		Napi::Value DecodeFloat(const CallbackInfo& args);
 		
 		void ApplyEncoderCTL(const CallbackInfo& args);
 		
