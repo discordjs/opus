@@ -14,6 +14,10 @@ const encoder = new OpusEncoder(48_000, 2);
 // Encode and decode.
 const encoded = encoder.encode(buffer);
 const decoded = encoder.decode(encoded);
+
+// Encode and decode 32-bit floating point PCM instead of 16-bit integer PCM.
+const encodedFloat = encoder.encodeFloat(floatBuffer);
+const decodedFloat = encoder.decodeFloat(encodedFloat);
 ```
 
 ## Platform support
